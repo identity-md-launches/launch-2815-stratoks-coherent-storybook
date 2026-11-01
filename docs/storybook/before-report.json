@@ -1,0 +1,171 @@
+{
+  "label": "before",
+  "date": "2026-11-01T08:19:50.139Z",
+  "shots": [
+    "before-1440-mid.jpg",
+    "before-1440-close.jpg",
+    "before-1440-close-selected.jpg",
+    "before-1440-far.jpg",
+    "before-1440-resource-selected.jpg",
+    "before-1440-cold.jpg",
+    "before-1440-arid.jpg",
+    "before-1440-coast.jpg",
+    "before-390-mid.jpg",
+    "before-390-close.jpg",
+    "before-390-close-selected.jpg",
+    "before-390-far.jpg",
+    "before-390-resource-selected.jpg",
+    "before-390-cold.jpg",
+    "before-390-arid.jpg",
+    "before-390-coast.jpg"
+  ],
+  "errors": [],
+  "perf": [
+    {
+      "viewport": "1440",
+      "zoom": "mid",
+      "rafSamples": 123,
+      "rafMeanMs": 32.985365853270864,
+      "drawSamples": 120,
+      "drawMedianMs": 11.600000143051147,
+      "drawP95Ms": 26.700000047683716,
+      "drawn": 209,
+      "heapMB": 31.9,
+      "tick": 12612,
+      "residents": 167
+    },
+    {
+      "viewport": "390",
+      "zoom": "mid",
+      "rafSamples": 224,
+      "rafMeanMs": 18.099553571002826,
+      "drawSamples": 120,
+      "drawMedianMs": 2.299999952316284,
+      "drawP95Ms": 11,
+      "drawn": 94,
+      "heapMB": 30,
+      "tick": 12609,
+      "residents": 167
+    }
+  ],
+  "interactions": [
+    {
+      "viewport": "1440",
+      "residentSelect": 86,
+      "inspectorVisible": true
+    },
+    {
+      "viewport": "1440",
+      "cameraSpan": {
+        "mid": 22,
+        "close": 12.731481481481485,
+        "far": 38.01600000000001
+      }
+    },
+    {
+      "viewport": "1440",
+      "resourceSelect": "4:8,4:pile:usable:0:temperate:wood",
+      "panelMentionsQuantity": true
+    },
+    {
+      "viewport": "1440",
+      "biome": "cold",
+      "reached": true,
+      "kinds": [
+        "stone",
+        "tree",
+        "lichen",
+        "flint",
+        "deadfall",
+        "fish"
+      ],
+      "rain": false
+    },
+    {
+      "viewport": "1440",
+      "biome": "arid",
+      "reached": true,
+      "kinds": [
+        "flint",
+        "stone",
+        "scrub",
+        "deadfall",
+        "cactus"
+      ],
+      "rain": false
+    },
+    {
+      "viewport": "1440",
+      "biome": "coast",
+      "reached": true,
+      "kinds": [
+        "shellfish",
+        "driftwood",
+        "stone",
+        "bush",
+        "fish",
+        "scrub"
+      ],
+      "rain": false
+    },
+    {
+      "viewport": "390",
+      "residentSelect": 63,
+      "inspectorVisible": false
+    },
+    {
+      "viewport": "390",
+      "cameraSpan": {
+        "mid": 9.5,
+        "close": 9,
+        "far": 18.287895310796074
+      }
+    },
+    {
+      "viewport": "390",
+      "resourceSelect": "8:3,2:pile:usable:0:temperate:wood",
+      "panelMentionsQuantity": true
+    },
+    {
+      "viewport": "390",
+      "biome": "cold",
+      "reached": true,
+      "kinds": [
+        "lichen",
+        "deadfall",
+        "tree",
+        "stone",
+        "flint",
+        "fish"
+      ],
+      "rain": false
+    },
+    {
+      "viewport": "390",
+      "biome": "arid",
+      "reached": true,
+      "kinds": [
+        "flint",
+        "cactus",
+        "scrub",
+        "stone",
+        "deadfall"
+      ],
+      "rain": false
+    },
+    {
+      "viewport": "390",
+      "biome": "coast",
+      "reached": true,
+      "kinds": [
+        "driftwood",
+        "shellfish",
+        "stone",
+        "bush",
+        "fish",
+        "scrub"
+      ],
+      "rain": false
+    }
+  ]
+}

@@ -97,3 +97,13 @@ This revision retains the implemented moss/charcoal HUD, warm gold actions, loca
 - **Bare-hand activity (`appearance.ts`)**: wood/stick gathering without a confirmed compatible tool selects `work`, which renders a neutral original STRATOKS actor and the renderer's target-directed arm gesture. Actual carried inventory is independent. The mallet-bearing `build.ready` and `build.lower` cells have no bare-hand pickup mapping.
 
 No new font, dependency, token, biome, world object or schema was added. The visual boundary bends; authoritative terrain, pathfinding, residents, stocks and persistent identities stay unchanged. Source-derived geometry/quantity checks and desktop/phone captures are recorded in `artifacts/world-revision/VALIDATION.md`. Canvas colour contrasts are not claimed as an accessibility measurement; the HUD's measured review is recorded separately.
+
+## World art tokens (storybook pipeline, 2026-11-01)
+
+Source: `web/src/expanse/storybook.ts` (`PALETTE`, `castShadow`, cell contract) and [ART-DIRECTION.md](ART-DIRECTION.md).
+
+- **Outline** `#3a2a1e`, 2.4 px at the 320-px cell scale. Shared by structures, vegetation, stores and piles. Ground dressing has no outline.
+- **Shadow** `rgba(42,52,34,.30)`: one ellipse offset to the lower right, used by every object and by residents.
+- **Material ramps** (dark / mid / light): timber `#5c3d26 #8a6040 #b0845a`, plaster `#c9b48a #e8d8b4 #f6ecd2`, thatch `#94733a #c9a55a #e2c47a`, clay `#8c4632 #b55a3c #d27c58`, slate `#46586a #5f7487 #8296a6`, stone `#6d6c62 #9c9a8c #c3c0ae`, adobe `#a8754a #d6a46c #ecc490`, turf, leaf `#355a26 #5f8f3a #9cc25a`, needle `#1d3d2d #2f5d43 #4f8a5d`, olive, frost, snow, berry, flame.
+- **Cell contract:** 320×320, foot anchor (160, 280), drawn with the same width-in-half-tiles rule as the character atlas.
+- **Art sheet component** (`#art-sheet`, `ArtSheet.tsx`, `.exp-art-*` in `living.css`): a charcoal `#1f2a24` page with a 28-px h1, 18-px gold `#e8c36e` group headings, a palette swatch list, and an auto-fill grid of cells (`minmax(160px, 1fr)`) on grass `#7d9b57` with 12-px key captions. The grid reflows from 2 columns at 390 px to 8 at 1440 px.
