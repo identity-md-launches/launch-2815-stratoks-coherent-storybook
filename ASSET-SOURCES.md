@@ -4,8 +4,10 @@
 
 | Asset | Source | Creator | Version / hash | License | Modifications |
 | --- | --- | --- | --- | --- | --- |
-| Environment cells (67 keys: shelters ×8 + 16 states, storage ×6, hearths ×4, gardens ×4, trees ×16, shrubs ×6, rocks/logs ×7) | `web/src/expanse/storybook.ts`, painted at runtime into cached 320×320 canvases | Original work for this repository | Deterministic from source: same key, same pixels. Seeds come from stable ids. | Same as the repository's client code (see `web/public/licenses/client-and-art.txt`) | n/a (original) |
-| Stratok character atlas | `web/public/art/living-characters.webp` (pre-existing) | Prior contributors, see `web/public/licenses/living-art.txt` | unchanged | unchanged | none |
+| Environment cells (189 keys: shelters ×43, storage ×64, hearths ×8, gardens ×4, trees ×24, shrubs ×22, rocks ×16, logs ×8) | `web/src/expanse/storybook.ts`, painted at runtime into cached 320×320 canvases | Original work for this repository | SHA-256: `cd37d28c959b125c2288e356010bbc3cba8ba859fa991490126876ca38ec1202` | MIT, same as the repository's client code (see `web/public/licenses/client-and-art.txt`) | n/a (original) |
+| Stratok character atlas | `web/public/art/living-characters.webp` (pre-existing) | Prior contributors, see `web/public/licenses/living-art.txt` | SHA-256: `80d4d8b0473961438a5c0fa00685eeed516345ddf629401861eb0ed4c1389841` | MIT (see `web/public/licenses/client-and-art.txt` and `web/public/licenses/living-art.txt`) | none |
+
+Hashes identify the exact painter source and atlas bytes delivered. Verify them from the repository root with `sha256sum web/src/expanse/storybook.ts web/public/art/living-characters.webp dist/art/living-characters.webp`; the exported atlas has the same hash as the source atlas.
 
 Editable source: the painter functions themselves, plus the `PALETTE` table. To reproduce the contact sheet, build and open `dist/index.html#art-sheet` over HTTP. Each label there is the cell key, which is the source-to-render mapping (`family:region:variant:state`).
 
