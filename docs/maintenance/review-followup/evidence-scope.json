@@ -1,0 +1,18 @@
+{
+  "reviewedCheckout": "a45bf2cc06e613b0dd01331c04bf74779aea93ad",
+  "previousComponent": "0f33730ba577d1502e746aa2ace611324549bf85",
+  "headStorybookFiles": [],
+  "referencedValidationExists": false,
+  "referencedBeforeAfterJpegsExist": false,
+  "referencedFoliageCommit5abcbddAvailable": false,
+  "previewScriptExists": true,
+  "staticDemoExists": true,
+  "finalCombinedArtworkAvailable": false,
+  "method": [
+    "git rev-parse HEAD",
+    "git ls-tree -r --name-only HEAD docs/storybook",
+    "git cat-file -t 5abcbdd",
+    "git ls-tree -r --name-only HEAD dist/demo web/public/demo"
+  ],
+  "limitation": "This enumerates the actual revision checkout, not the separate final combined tree described by the reviewer. No new visual capture is claimed."
+}

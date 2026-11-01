@@ -1,5 +1,7 @@
 # Revision: striker predictions and long-run evidence
 
+Subsequent review: [actual-HEAD scope check and repeated long-run observations](../review-followup/VALIDATION.md). That follow-up distinguishes this component's checkout from the reviewer's separate combined tree and keeps both outstanding requirements explicit.
+
 Incoming accepted component: `0f33730ba577d1502e746aa2ace611324549bf85`, based on pinned `04f473dd3b1b6101efc37fb85418baa72605ee59`. This revision changes the declared inventory effect of pile use, simplifies an equivalent ignition gate, extends accounting observations and corrects documentation claims. Placement, spark probabilities, costs, failure/replan handling and gameplay primitives remain as accepted. Authentication, schemas, saves, terrain, preview and frontend source are untouched.
 
 ## Reproduced mismatch — fixed

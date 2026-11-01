@@ -1,0 +1,9 @@
+{"tick":1000,"piles":18,"single":9,"units":48,"residents":40,"accounting":"exact"}
+{"tick":2000,"piles":25,"single":18,"units":49,"residents":46,"accounting":"exact"}
+{"tick":3000,"piles":38,"single":24,"units":78,"residents":49,"accounting":"exact"}
+{"tick":4000,"piles":42,"single":28,"units":83,"residents":60,"accounting":"exact"}
+{"tick":5000,"piles":58,"single":39,"units":98,"residents":67,"accounting":"exact"}
+{"tick":6000,"piles":70,"single":43,"units":123,"residents":72,"accounting":"exact"}
+{"tick":7000,"piles":82,"single":47,"units":160,"residents":90,"accounting":"exact"}
+{"tick":8000,"piles":99,"single":61,"units":201,"residents":102,"accounting":"exact"}
+{"tick":9000,"piles":113,"single":59,"units":248,"residents":115,"accounting":"exact"}
