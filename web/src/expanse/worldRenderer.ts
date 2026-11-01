@@ -1,6 +1,5 @@
 import { drawSprite, type Art } from "./art";
-import { drawVariant, type Region } from "./variants";
-const REGIONS = new Set(["forest", "desert", "cold", "coast"]);
+import { drawCell, nodeKey, shelterKey, storeKey, hearthKey, gardenKey, regionOf, drawDressing, castShadow, stableHash, type Stage } from "./storybook";
 import { residentPose, residentSprite, carried, constructionStage } from "./appearance";
 export { residentPose } from "./appearance";
 import { resourceGroups, type ResourceGroup, type ResourceHit } from './resources';
@@ -192,6 +191,10 @@ export class WorldRenderer {
       ctx.globalAlpha = 1;
     }
     const objects: { depth: number; draw: () => void }[] = [];
+    const occupied = new Set<string>();
+    for (const [,x,y] of v.shelters) occupied.add(`${x},${y}`);
+    for (const q of [...(v.sites ?? []), ...(v.ruins ?? []), ...(v.crops ?? [])]) occupied.add(`${q.x},${q.y}`);
+    for (const [,x,y] of v.fires) occupied.add(`${x},${y}`);
     // Redraw raised cliffs in the same depth queue as actors. A resident behind
     // a connected face is occluded instead of floating over the cached terrain.
     for(let y=v.y0;y<v.y0+v.h;y++)for(let x=v.x0;x<v.x0+v.w;x++)if(v.tiles[(y-v.y0)*v.w+x-v.x0]===7){
@@ -210,16 +213,13 @@ export class WorldRenderer {
         culled++;
         continue;
       }
-      const biome = biomeAt(f, x, y);
-      const prefix = biome === 'temperate' ? 'forest' : biome === 'arid' ? 'desert' : biome;
+      const region = regionOf(biomeAt(f, x, y));
+      // One storybook pipeline for every node kind; legacy atlas only as a
+      // visually compatible fallback when a kind has no painted cell.
+      const cellKey = nodeKey(region, kind, node, units);
       let sprite: string | null = null, width = 3.2;
-      if (kind === 'tree' && units > 0) { sprite = `${prefix}.tree.${{forest:'oak',desert:'palm',cold:'spruce',coast:'pine'}[prefix] ?? 'oak'}`; width = 4.4; }
-      else if (kind === 'bush') { sprite = `${prefix}.${prefix==='cold'?'berries.frost':prefix==='desert'?'cactus':prefix==='coast'?'reeds':units>0?'berries.full':'berries.depleted'}`; width = 2.9; }
-      else if (kind === 'stone' || kind === 'flint') { if (!units) continue; sprite = `${prefix}.stone.${prefix==='desert'?'sandstone':prefix==='cold'?'granite':prefix==='coast'?'coastal':'sandstone'}`; if(prefix==='forest') sprite='coast.stone.coastal'; width=2.7; }
-      else if (['deadfall','driftwood'].includes(kind) && units>0) { sprite='forest.stock.wood'; width=2.4; }
-      else if (kind === 'cactus' && units>0) { sprite='desert.cactus'; width=2.5; }
-      else if (['scrub','lichen'].includes(kind) && units>0) { sprite=prefix==='cold'?'cold.berries.frost':'coast.reeds'; width=1.8; }
-      else if(kind==='fish') {
+      if (!cellKey && kind === 'tree' && units > 0) sprite = `${region}.tree.${{forest:'oak',desert:'palm',cold:'spruce',coast:'pine'}[region]}`;
+      if(kind==='fish') {
         // A quiet underwater stock marker, never a resident fishing animation.
         if(units>0) objects.push({depth:p.depth,draw:()=>{
           ctx.strokeStyle='#174d5d99';ctx.lineWidth=Math.max(1,s*.035);
@@ -227,8 +227,12 @@ export class WorldRenderer {
           ctx.beginPath();ctx.moveTo(p.x-s*.17,p.y);ctx.lineTo(p.x-s*.28,p.y-s*.09);ctx.lineTo(p.x-s*.28,p.y+s*.08);ctx.closePath();ctx.stroke();
         }});
       } else if(kind==='shellfish'&&units>0) {
-        objects.push({depth:p.depth,draw:()=>{ctx.fillStyle='#e1d1b9';for(let n=0;n<Math.min(3,units);n++){ctx.beginPath();ctx.ellipse(p.x+s*(n-1)*.16,p.y,s*.11,s*.07,-.5,0,Math.PI*2);ctx.fill();}}});
+        objects.push({depth:p.depth,draw:()=>{ctx.fillStyle='#e1d1b9';ctx.strokeStyle='#3a2a1e';ctx.lineWidth=1;for(let n=0;n<Math.min(3,units);n++){ctx.beginPath();ctx.ellipse(p.x+s*(n-1)*.16,p.y,s*.11,s*.07,-.5,0,Math.PI*2);ctx.fill();ctx.stroke();}}});
       }
+      if (cellKey) { occupied.add(`${x},${y}`); drawn++; objects.push({ depth: p.depth, draw: () => {
+        const sway = opts.motion && kind === "tree" ? Math.sin(now / 2400 + hash(x, y)) * s * 0.012 : 0;
+        drawCell(ctx, cellKey.key, p.x + sway, p.y, cellKey.width * s);
+      } }); continue; }
       if (!sprite) continue;
       drawn++;
       objects.push({
@@ -238,32 +242,24 @@ export class WorldRenderer {
             opts.motion && kind === "tree"
               ? Math.sin(now / 2400 + hash(x, y)) * s * 0.012
               : 0;
-          // Trees vary by stable node ID (silhouette, mirror, size); others use the atlas.
-          if (kind === "tree" && REGIONS.has(prefix)) drawVariant(ctx, this.art, "tree", prefix as Region, node, sprite, p.x + sway, p.y, width * s);
-          else drawSprite(ctx, this.art, sprite, p.x + sway, p.y, width * s);
+          drawSprite(ctx, this.art, sprite!, p.x + sway, p.y, width * s);
         },
       });
     }
-    const prefixAt = (x:number,y:number) => { const b=biomeAt(f,x,y);return b==='temperate'?'forest':b==='arid'?'desert':b; };
-    const structure = (x:number,y:number,stage:string,integrity=100,id?:number) => {
+    const structure = (x:number,y:number,stage:Stage,id?:number) => {
       const p=project({x:x+.5,y:y+.5},c,size);
       if(!visible(p,s*5)){culled++;return;}
       drawn++;
-      objects.push({depth:p.depth,draw:()=>{
-        const region=prefixAt(x,y),name=`${region}.shelter.${stage}`;
-        // Completed shelters vary architecture by stable shelter ID; construction
-        // stages, condition and the authoritative tile are unchanged.
-        if(id!==undefined&&stage==='complete'&&REGIONS.has(region))drawVariant(ctx,this.art,'shelter',region as Region,id,name,p.x,p.y,s*4.6,integrity<=0?.35:1);
-        else drawSprite(ctx,this.art,name,p.x,p.y,s*4.6,integrity<=0?.35:1);
-        if(integrity<40){ctx.strokeStyle='#c49d63';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x-s*.6,p.y-s);ctx.lineTo(p.x-s*.3,p.y-s*.6);ctx.lineTo(p.x-s*.4,p.y);ctx.stroke();}
-      }});
+      // Shelter appearance: variant from the stable shelter id (shape AND
+      // material), state from the authoritative stage/integrity only.
+      objects.push({depth:p.depth,draw:()=>drawCell(ctx,shelterKey(regionOf(biomeAt(f,x,y)),id,stage),p.x,p.y,s*4.6)});
     };
-    for (const [id,x,y,,integrity] of v.shelters) structure(x,y,'complete',integrity,id);
-    for (const ruin of v.ruins ?? []) structure(ruin.x,ruin.y,'foundation',0);
+    for (const [id,x,y,,integrity=100] of v.shelters) structure(x,y,integrity<=0?'ruin':integrity<40?'damaged':'complete',id);
+    for (const ruin of v.ruins ?? []) structure(ruin.x,ruin.y,'ruin',ruin.id);
     for (const site of v.sites ?? []) {
       const p=project({x:site.x+.5,y:site.y+.5},c,size);
       const stage=constructionStage(site);
-      if(stage!=='marker') structure(site.x,site.y,stage);
+      if(stage!=='marker') structure(site.x,site.y,stage,site.id);
       else objects.push({depth:p.depth,draw:()=>{ctx.strokeStyle='#e8c36e99';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(p.x,p.y-s*.45);ctx.lineTo(p.x+s*.9,p.y);ctx.lineTo(p.x,p.y+s*.45);ctx.lineTo(p.x-s*.9,p.y);ctx.closePath();ctx.stroke();ctx.setLineDash([]);}});
       const n=Object.values(site.need).reduce((a,b)=>a+b,0), delivered=Object.values(site.materials).reduce((a,b)=>a+b,0);
       if(delivered>0) objects.push({depth:p.depth+.2,draw:()=>{ctx.fillStyle='#25332d';ctx.fillRect(p.x-s*.65,p.y+s*.2,s*1.3,Math.max(3,s*.1));ctx.fillStyle='#e8c36e';ctx.fillRect(p.x-s*.65,p.y+s*.2,s*1.3*Math.min(delivered/n,site.work/site.workNeed),Math.max(3,s*.1));}});
@@ -282,43 +278,45 @@ export class WorldRenderer {
       drawn++;
       objects.push({depth:p.depth+.1,draw:()=>{
         if(stock.kind==='store'){
-          const w=radius*1.5,h=radius*(.5+stock.size*.13);
-          ctx.fillStyle='#72543d';ctx.fillRect(p.x-w/2,p.y-h,w,h);
-          ctx.fillStyle='#ad9466';ctx.beginPath();ctx.ellipse(p.x,p.y-h,w/2,w*.2,0,0,7);ctx.fill();
-          ctx.strokeStyle='#d1b782';ctx.lineWidth=Math.max(.7,s*.035);ctx.strokeRect(p.x-w/2,p.y-h,w,h);
-        }else if(grouped){
-          ctx.fillStyle='#3d463b55';ctx.beginPath();ctx.ellipse(p.x,p.y,radius*1.2,radius*.48,0,0,7);ctx.fill();
+          // Storage zone of a real shelter store: a covered rack when timber
+          // dominates, baskets/crates otherwise; fill follows the size class.
+          drawCell(ctx,storeKey(regionOf(biomeAt(f,stock.x,stock.y)),stock.items,stock.size,stock.members.every(m=>m.ruined)),p.x,p.y,s*(1.7+.15*stock.size));
+        }else{
+          castShadow(ctx,p.x,p.y,radius*1.1,radius*.42);
+          const outline='#3a2a1e';ctx.strokeStyle=outline;ctx.lineWidth=Math.max(.7,s*.03);
           if(stock.items.wood>0){
-            // A quantity-aware stacked cross-section (1–4 tiers), clearly a
-            // summary of timber, without copying one tall bundle per member.
+            // A quantity-aware stacked cross-section (1–4 tiers) of timber.
             const log=Math.max(1.6,radius*.22);
             for(let row=0;row<stock.size;row++)for(let col=0;col<stock.size-row;col++){
               const x=p.x+(col-(stock.size-row-1)/2)*log*1.75,y=p.y-row*log*1.35-log;
-              ctx.fillStyle='#715037';ctx.beginPath();ctx.ellipse(x,y,log,log*.75,-.15,0,7);ctx.fill();
-              ctx.fillStyle='#c7a572';ctx.beginPath();ctx.ellipse(x+log*.2,y-log*.15,log*.64,log*.49,-.15,0,7);ctx.fill();
+              ctx.fillStyle='#8a6040';ctx.beginPath();ctx.ellipse(x,y,log,log*.75,-.15,0,7);ctx.fill();ctx.stroke();
+              ctx.fillStyle='#e8d8b4';ctx.beginPath();ctx.ellipse(x+log*.12,y-log*.1,log*.55,log*.42,-.15,0,7);ctx.fill();
             }
           }else{
-            ctx.fillStyle=stock.items.stone>0?'#89958c':'#a48757';
-            for(let k=0;k<stock.size;k++){ctx.beginPath();ctx.ellipse(p.x+(k-(stock.size-1)/2)*radius*.4,p.y-radius*(.15+(k%2)*.2),radius*.4,radius*.3,-.4,0,7);ctx.fill();}
+            const tone=stock.items.stone>0?['#9c9a8c','#c3c0ae']:['#c9a55a','#e2c47a'];
+            for(let k=0;k<stock.size;k++){const x=p.x+(k-(stock.size-1)/2)*radius*.4,y=p.y-radius*(.15+(k%2)*.2);ctx.fillStyle=tone[0];ctx.beginPath();ctx.ellipse(x,y,radius*.4,radius*.3,-.4,0,7);ctx.fill();ctx.stroke();ctx.fillStyle=tone[1];ctx.beginPath();ctx.ellipse(x-radius*.1,y-radius*.1,radius*.18,radius*.1,-.4,0,7);ctx.fill();}
           }
+          if(stock.items.wood>0&&Object.keys(stock.items).some(k=>k!=='wood'&&stock.items[k]>0)){ctx.fillStyle='#c9a55a';ctx.beginPath();ctx.ellipse(p.x+radius*.7,p.y-radius*.15,radius*.3,radius*.22,0,0,7);ctx.fill();ctx.stroke();}
           // A small linked pair marks aggregation without inventing a building.
-          ctx.strokeStyle='#f4e4ba';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x+radius*.65,p.y-radius*.95,2.2,0,7);ctx.arc(p.x+radius*.9,p.y-radius*.95,2.2,0,7);ctx.stroke();
-        }else{
-          if(stock.items.wood>0)drawSprite(ctx,this.art,'forest.stock.wood',p.x,p.y,s*(.9+.2*stock.size));
-          if(stock.items.stone>0)drawSprite(ctx,this.art,'desert.stock.stone-reeds',p.x+s*.25,p.y,s*(.9+.15*stock.size));
-          if(Object.keys(stock.items).some(k=>!['wood','stone'].includes(k))){ctx.fillStyle='#98774e';ctx.beginPath();ctx.ellipse(p.x+s*.3,p.y-s*.12,radius*.5,radius*.3,0,0,7);ctx.fill();}
+          if(grouped){ctx.strokeStyle='#f4e4ba';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x+radius*.65,p.y-radius*.95,2.2,0,7);ctx.arc(p.x+radius*.9,p.y-radius*.95,2.2,0,7);ctx.stroke();}
         }
       }});
     }
-    for (const [,x,y] of v.fires) {
+    for (const [id,x,y] of v.fires) {
       const p=project({x:x+.5,y:y+.5},c,size);if(!visible(p,s*3))continue;
       drawn++;
+      // Work area: the real fire. Hearth variant from the fire id; flame height
+      // from its actual fuel when the frame reports it.
+      const fuel=v.fireState?.find(q=>q.id===id)?.fuel,heat=fuel===undefined?1:Math.max(.35,Math.min(1.25,fuel/3));
       objects.push({depth:p.depth,draw:()=>{
-        const flicker=opts.motion?1+.1*Math.sin(now/160+x):1;
+        drawCell(ctx,hearthKey(regionOf(biomeAt(f,x,y)),id),p.x,p.y,s*2.4);
+        const flicker=(opts.motion?1+.1*Math.sin(now/160+x):1)*heat;
         const glow=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,s*1.3);glow.addColorStop(0,'#ffd46e55');glow.addColorStop(1,'#ffd46e00');ctx.fillStyle=glow;ctx.fillRect(p.x-s*1.3,p.y-s*1.3,s*2.6,s*2.6);
-        ctx.strokeStyle='#725344';ctx.lineWidth=s*.16;ctx.beginPath();ctx.moveTo(p.x-s*.3,p.y);ctx.lineTo(p.x+s*.3,p.y-s*.15);ctx.moveTo(p.x-s*.3,p.y-s*.15);ctx.lineTo(p.x+s*.3,p.y);ctx.stroke();
-        ctx.fillStyle='#e97e39';ctx.beginPath();ctx.moveTo(p.x-s*.25,p.y-s*.1);ctx.quadraticCurveTo(p.x-s*.3,p.y-s*.5*flicker,p.x+s*.08,p.y-s*.9*flicker);ctx.quadraticCurveTo(p.x+s*.5,p.y-s*.2,p.x+s*.15,p.y);ctx.fill();
-        ctx.fillStyle='#ffe39b';ctx.beginPath();ctx.ellipse(p.x,p.y-s*.25,s*.1,s*.25,0,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#3a2a1e';ctx.lineWidth=s*.16;ctx.beginPath();ctx.moveTo(p.x-s*.3,p.y);ctx.lineTo(p.x+s*.3,p.y-s*.15);ctx.moveTo(p.x-s*.3,p.y-s*.15);ctx.lineTo(p.x+s*.3,p.y);ctx.stroke();
+        ctx.strokeStyle='#8a6040';ctx.lineWidth=s*.09;ctx.stroke();
+        ctx.fillStyle='#c8522a';ctx.beginPath();ctx.moveTo(p.x-s*.28,p.y-s*.08);ctx.quadraticCurveTo(p.x-s*.34,p.y-s*.55*flicker,p.x+s*.06,p.y-s*.95*flicker);ctx.quadraticCurveTo(p.x+s*.52,p.y-s*.22,p.x+s*.18,p.y);ctx.fill();
+        ctx.fillStyle='#ef9a3c';ctx.beginPath();ctx.moveTo(p.x-s*.17,p.y-s*.08);ctx.quadraticCurveTo(p.x-s*.2,p.y-s*.4*flicker,p.x+s*.04,p.y-s*.7*flicker);ctx.quadraticCurveTo(p.x+s*.34,p.y-s*.2,p.x+s*.1,p.y-s*.02);ctx.fill();
+        ctx.fillStyle='#ffe39b';ctx.beginPath();ctx.ellipse(p.x,p.y-s*.22,s*.08,s*.2*flicker,0,0,Math.PI*2);ctx.fill();
       }});
     }
     for(const crop of v.crops ?? []){
@@ -326,9 +324,9 @@ export class WorldRenderer {
       objects.push({depth:p.depth+.05,draw:()=>{
         // Exact crop species and stage: never use the supplied wheat illustration
         // for berry/cactus plants. Soil is a planted tile, not a free resource.
-        ctx.fillStyle='#775b3f';ctx.beginPath();ctx.ellipse(p.x,p.y,s*.6,s*.27,0,0,7);ctx.fill();
-        const growth=Math.min(1,(crop.growth+1)/6),green=crop.dry?'#8e8348':'#4d7541';
-        ctx.fillStyle=green;ctx.beginPath();ctx.ellipse(p.x,p.y-s*.28*growth,s*.28*growth,s*.35*growth,0,0,7);ctx.fill();
+        drawCell(ctx,gardenKey(crop.id,crop.dry),p.x,p.y,s*2.3);
+        const growth=Math.min(1,(crop.growth+1)/6),green=crop.dry?'#8a9a4a':'#5f8f3a';
+        ctx.strokeStyle='#3a2a1e';ctx.lineWidth=Math.max(.7,s*.03);ctx.fillStyle=green;for(const dx of [-.22,.22]){ctx.beginPath();ctx.ellipse(p.x+s*dx,p.y-s*.22*growth,s*.2*growth,s*.27*growth,0,0,7);ctx.fill();ctx.stroke();}ctx.fillStyle=crop.dry?'#b7c46e':'#9cc25a';ctx.beginPath();ctx.ellipse(p.x-s*.04,p.y-s*.32*growth,s*.12*growth,s*.12*growth,0,0,7);ctx.fill();
         if(crop.kind==='cactus_fruit'){ctx.strokeStyle='#d5cd90';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y-s*.5*growth);ctx.stroke();}
         if(crop.ripe){ctx.fillStyle=crop.kind==='berry'?'#ae3d3c':'#cf9759';for(let k=0;k<3;k++){ctx.beginPath();ctx.arc(p.x+(k-1)*s*.12,p.y-s*(.2+(k%2)*.15),Math.max(1.5,s*.07),0,7);ctx.fill();}}
       }});
@@ -369,10 +367,8 @@ export class WorldRenderer {
       objects.push({
         depth: p.depth + 0.1,
         draw: () => {
-          ctx.fillStyle = "#243d2b2e";
-          ctx.beginPath();
-          ctx.ellipse(p.x, p.y + 1, s * 0.56, s * 0.24, 0, 0, 7);
-          ctx.fill();
+          // Same cast-shadow rule as every structure and tree.
+          castShadow(ctx, p.x, p.y + 1, s * 0.5, s * 0.21);
           if (r.id === opts.selected || r.health < 30) {
             ctx.strokeStyle = r.id === opts.selected ? "#fff1b0" : "#943e2d";
             ctx.lineWidth = r.id === opts.selected ? 2.5 : 2;
@@ -430,6 +426,18 @@ export class WorldRenderer {
         },
       });
     }
+    // Ground dressing: derived from real tiles, non-interactive, never on an
+    // occupied tile, at most one item per tile and only on ~1 tile in 9.
+    if (s >= 14) for (let j = 0; j < v.h; j++) for (let i = 0; i < v.w; i++) {
+      const x = v.x0 + i, y = v.y0 + j, t = v.tiles[j * v.w + i], h = hash(x * 3 + 1, y * 5 + 2);
+      if (WATER.has(t) || t === 7 || occupied.has(`${x},${y}`)) continue;
+      const wet = [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const xx=i+dx, yy=j+dy; return xx>=0&&yy>=0&&xx<v.w&&yy<v.h&&WATER.has(v.tiles[yy*v.w+xx]); });
+      const kind = wet ? (h % 3 === 0 ? "shore" : null) : h % 9 !== 0 ? null : t === 6 ? "snowdrift" : t === 4 || t === 9 || t === 5 ? "pebbles" : (t === 0 || t === 8) ? (h % 2 ? "tuft" : "flowers") : null;
+      if (!kind) continue;
+      const p = project({ x: x + .3 + (h % 40) / 100, y: y + .3 + ((h >> 6) % 40) / 100 }, c, size);
+      if (!visible(p, s)) continue;
+      drawDressing(ctx, kind, p.x, p.y, s, h);
+    }
     objects.sort((a, b) => a.depth - b.depth);
     for (const o of objects) o.draw();
     // Neutral glyphs from actual emissions only. No translation or fictional
@@ -440,6 +448,17 @@ export class WorldRenderer {
       ctx.globalAlpha=Math.max(.25,1-(f.tick-signal.tick)/16);
       ctx.fillStyle='#28362d';ctx.beginPath();ctx.arc(p.x,p.y-s*1.7,Math.max(10,s*.42),0,7);ctx.fill();
       ctx.fillStyle='#f5efd9';ctx.font=`${Math.max(12,s*.55)}px Georgia`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(signal.glyph,p.x,p.y-s*1.7);ctx.globalAlpha=1;
+    }
+    // Weather follows the frame's actual climate and biome: rain streaks, or
+    // snowfall when the viewed biome is cold. Static frames show it unanimated.
+    if (v.climate?.rain) {
+      const cold = regionOf(v.biome) === "cold" || v.climate.temperature <= 0, t = opts.motion ? now : 0;
+      ctx.strokeStyle = "rgba(214,232,240,.45)"; ctx.fillStyle = "rgba(255,255,255,.8)"; ctx.lineWidth = 1;
+      for (let n = 0; n < 90; n++) {
+        const h = stableHash(n), x = ((h % 1000) / 1000 * size.w + (cold ? Math.sin(t / 900 + n) * 8 : -t * .05)) % size.w, y = ((h >>> 10) % 1000 / 1000 * size.h + t * (cold ? .03 : .45)) % size.h;
+        if (cold) { ctx.beginPath(); ctx.arc((x + size.w) % size.w, y, 1.6, 0, 7); ctx.fill(); }
+        else { ctx.beginPath(); ctx.moveTo((x + size.w) % size.w, y); ctx.lineTo((x + size.w) % size.w - 3, y + 11); ctx.stroke(); }
+      }
     }
     if (opts.knowledge && f.inspector?.observation) {
       const o = f.inspector.observation,
