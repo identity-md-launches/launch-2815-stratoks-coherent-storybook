@@ -1,5 +1,9 @@
 # Resource carpet diagnosis, activity chains and persistence: validation
 
+**Historical component record.** The later pinned delivery retained an outdated wood-only fuel assertion.
+The [maintenance report](../maintenance/README.md) resolves it and supersedes the suite-count claims below
+with newly run checks. Measurements below are historical, not rerun performance results.
+
 Scope of this component: backend simulation (`server/`), shared helper (`shared/stockpiles.js`), tests, docs. Base:
 `d0ee752960b66ac04c8f36964e195d9409d97bfb`. No web/renderer, art, wallet or deployment files were changed; the
 wallet/auth code and its tests are untouched and still pass. Nothing was deployed. Design and interface:

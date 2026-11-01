@@ -1,0 +1,85 @@
+TAP version 13
+# Subtest: resource accounting and pile bound throughout 3500 unattended ticks, seed 3
+ok 1 - resource accounting and pile bound throughout 3500 unattended ticks, seed 3
+  ---
+  duration_ms: 33726.46649
+  type: 'test'
+  ...
+# {"seed":3,"peakPiles":25,"samples":[{"tick":250,"piles":3,"units":3,"residents":40},{"tick":500,"piles":9,"units":13,"residents":40},{"tick":750,"piles":13,"units":26,"residents":40},{"tick":1000,"piles":13,"units":20,"residents":37},{"tick":1250,"piles":16,"units":20,"residents":37},{"tick":1500,"piles":17,"units":28,"residents":32},{"tick":1750,"piles":17,"units":35,"residents":33},{"tick":2000,"piles":20,"units":35,"residents":33},{"tick":2250,"piles":22,"units":38,"residents":34},{"tick":2500,"piles":22,"units":41,"residents":36},{"tick":2750,"piles":23,"units":46,"residents":39},{"tick":3000,"piles":21,"units":50,"residents":41},{"tick":3250,"piles":25,"units":53,"residents":43},{"tick":3500,"piles":25,"units":55,"residents":44}]}
+# Subtest: resource accounting and pile bound throughout 3500 unattended ticks, seed 7
+ok 2 - resource accounting and pile bound throughout 3500 unattended ticks, seed 7
+  ---
+  duration_ms: 27958.979161
+  type: 'test'
+  ...
+# {"seed":7,"peakPiles":37,"samples":[{"tick":250,"piles":5,"units":7,"residents":40},{"tick":500,"piles":13,"units":24,"residents":40},{"tick":750,"piles":18,"units":24,"residents":40},{"tick":1000,"piles":20,"units":29,"residents":42},{"tick":1250,"piles":24,"units":39,"residents":44},{"tick":1500,"piles":24,"units":41,"residents":45},{"tick":1750,"piles":26,"units":43,"residents":46},{"tick":2000,"piles":32,"units":55,"residents":48},{"tick":2250,"piles":30,"units":59,"residents":49},{"tick":2500,"piles":31,"units":57,"residents":49},{"tick":2750,"piles":28,"units":50,"residents":50},{"tick":3000,"piles":32,"units":60,"residents":54},{"tick":3250,"piles":37,"units":64,"residents":54},{"tick":3500,"piles":37,"units":70,"residents":56}]}
+# Subtest: resource accounting and pile bound throughout 3500 unattended ticks, seed 19
+ok 3 - resource accounting and pile bound throughout 3500 unattended ticks, seed 19
+  ---
+  duration_ms: 22362.110803
+  type: 'test'
+  ...
+# {"seed":19,"peakPiles":44,"samples":[{"tick":250,"piles":4,"units":4,"residents":40},{"tick":500,"piles":8,"units":9,"residents":40},{"tick":750,"piles":13,"units":18,"residents":40},{"tick":1000,"piles":16,"units":25,"residents":40},{"tick":1250,"piles":18,"units":28,"residents":41},{"tick":1500,"piles":18,"units":31,"residents":41},{"tick":1750,"piles":23,"units":44,"residents":46},{"tick":2000,"piles":21,"units":39,"residents":47},{"tick":2250,"piles":26,"units":51,"residents":48},{"tick":2500,"piles":27,"units":55,"residents":48},{"tick":2750,"piles":31,"units":62,"residents":50},{"tick":3000,"piles":37,"units":73,"residents":54},{"tick":3250,"piles":41,"units":84,"residents":57},{"tick":3500,"piles":44,"units":94,"residents":58}]}
+# Subtest: fixture is a representative schema-5 world with 300+ residents and accumulated ground stocks
+ok 4 - fixture is a representative schema-5 world with 300+ residents and accumulated ground stocks
+  ---
+  duration_ms: 565.204561
+  type: 'test'
+  ...
+# Subtest: loading the fixture with the updated engine preserves identity, learned weights, memories and inventory; save/load/restart is exact
+ok 5 - loading the fixture with the updated engine preserves identity, learned weights, memories and inventory; save/load/restart is exact
+  ---
+  duration_ms: 17978.949068
+  type: 'test'
+  ...
+# Subtest: unattended run: bounded ground piles, all three chains complete, decision evidence bounded and state-derived
+ok 6 - unattended run: bounded ground piles, all three chains complete, decision evidence bounded and state-derived
+  ---
+  duration_ms: 34810.558004
+  type: 'test'
+  ...
+# Subtest: tool mending consumes exactly one unit of its material and keeps the ledger exact; tools wear out with use
+ok 7 - tool mending consumes exactly one unit of its material and keeps the ledger exact; tools wear out with use
+  ---
+  duration_ms: 7.197647
+  type: 'test'
+  ...
+# Subtest: wood-only residents do not scatter fuel even when cold; material demand comes from perception
+ok 8 - wood-only residents do not scatter fuel even when cold; material demand comes from perception
+  ---
+  duration_ms: 15.601149
+  type: 'test'
+  ...
+# Subtest: ignition-ready fuel consolidates onto a perceived pile with exact accounting (stone)
+ok 9 - ignition-ready fuel consolidates onto a perceived pile with exact accounting (stone)
+  ---
+  duration_ms: 10.248238
+  type: 'test'
+  ...
+# Subtest: ignition-ready fuel consolidates onto a perceived pile with exact accounting (flint,stone)
+ok 10 - ignition-ready fuel consolidates onto a perceived pile with exact accounting (flint,stone)
+  ---
+  duration_ms: 11.264508
+  type: 'test'
+  ...
+# Subtest: flint without stone cannot bootstrap fuel; an on-tile pile can still consolidate wood
+ok 11 - flint without stone cannot bootstrap fuel; an on-tile pile can still consolidate wood
+  ---
+  duration_ms: 10.758386
+  type: 'test'
+  ...
+# Subtest: stockpile aggregation keeps exact quantities and member ids
+ok 12 - stockpile aggregation keeps exact quantities and member ids
+  ---
+  duration_ms: 0.680232
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 84198.399152

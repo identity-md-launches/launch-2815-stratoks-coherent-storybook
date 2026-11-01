@@ -271,7 +271,8 @@ export class Expanse {
 
   // ---------------- affordances (interface v2) ----------------
   // Generic: every visible/known node can be gathered/inspected, any two held item kinds can be combined, any held
-  // item can be used on self, a nearby fire or a pile, or placed. No recipe or ignition rule is consulted here.
+  // item can be used on self, a nearby fire or a pile. Fuel placement and meal preparation additionally
+  // retain the local ignition inputs; these gates prevent repeated unfinishable preparation and scattered fuel.
   affordances(c, obs, demand = materialDemand(this, c, obs)) {
     const ctxTool = c.inventory.hand_axe ? 'tool' : 'bare';
     const nearest = new Map();
@@ -309,8 +310,9 @@ export class Expanse {
         if (preparingMeal && (mealInputs.has(held[i]) || mealInputs.has(held[j]))) continue;
         out.push({ prim: 'combine', a: held[i], b: held[j], key: modelKey('combine', `${held[i]}+${held[j]}`), consumes: [], label: 'GATHER_WOOD' });
       }
-      // Placing fuel is offered only with a felt fire demand (cold, raw food while hungry) or onto an existing pile,
-      // and onto a perceived pile within 2 tiles when there is one, so fuel is consolidated instead of scattered.
+      // Away from an on-tile pile, placing fuel requires cold/heat-able food and ignition material (stone,
+      // optionally flint). Target a perceived pile within 2 tiles when available to avoid scattering fuel.
+      // An on-tile pile permits consolidation without ignition; this does not guarantee a successful fire.
       const fireWanted = this.fireDemand(c, obs), pileNear = pileHere ?? obs.piles.filter((p) => !this.shelters.some((s) => s.x === p.x && s.y === p.y)).sort((a, b) => Math.max(Math.abs(a.x - c.x), Math.abs(a.y - c.y)) - Math.max(Math.abs(b.x - c.x), Math.abs(b.y - c.y)) || (a.id < b.id ? -1 : 1))[0];
       // Starting a new fire is only offered when this resident can finish the local sequence now. This prevents
       // hungry residents from scattering a fuel pile they cannot ignite after walking away.

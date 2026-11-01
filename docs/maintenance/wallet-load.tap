@@ -1,0 +1,314 @@
+TAP version 13
+# Subtest: client uses actual HTTP crypto verification and server logout; connecting alone never authenticates
+ok 1 - client uses actual HTTP crypto verification and server logout; connecting alone never authenticates
+  ---
+  duration_ms: 996.421411
+  type: 'test'
+  ...
+# (node:9) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: transient session-check errors retain credentials, deduplicate checks and recover without false verification
+ok 2 - transient session-check errors retain credentials, deduplicate checks and recover without false verification
+  ---
+  duration_ms: 326.666461
+  type: 'test'
+  ...
+# Subtest: account switch mid-signature cannot authenticate old or new account; retry recovers
+ok 3 - account switch mid-signature cannot authenticate old or new account; retry recovers
+  ---
+  duration_ms: 374.787195
+  type: 'test'
+  ...
+# Subtest: network changes and provider disconnect immediately clear/revoke an existing session
+ok 4 - network changes and provider disconnect immediately clear/revoke an existing session
+  ---
+  duration_ms: 372.557926
+  type: 'test'
+  ...
+# Subtest: chain switch mid-signature and silent account changes both reject; no transaction RPC
+ok 5 - chain switch mid-signature and silent account changes both reject; no transaction RPC
+  ---
+  duration_ms: 151.833815
+  type: 'test'
+  ...
+# Subtest: late verification response after account switch is cancelled on server
+ok 6 - late verification response after account switch is cancelled on server
+  ---
+  duration_ms: 157.938833
+  type: 'test'
+  ...
+# Subtest: declined signature, locked wallet and provider timeout leave buttons recoverable
+ok 7 - declined signature, locked wallet and provider timeout leave buttons recoverable
+  ---
+  duration_ms: 245.189178
+  type: 'test'
+  ...
+# Subtest: signature reading timeout is independently bounded and cancelled without shortening backend requests
+ok 8 - signature reading timeout is independently bounded and cancelled without shortening backend requests
+  ---
+  duration_ms: 213.771761
+  type: 'test'
+  ...
+# Subtest: backend timeout/offline logout, unavailable capability and retry
+ok 9 - backend timeout/offline logout, unavailable capability and retry
+  ---
+  duration_ms: 336.961926
+  type: 'test'
+  ...
+# Subtest: exact challenge validation rejects altered server fields before prompting wallet
+ok 10 - exact challenge validation rejects altered server fields before prompting wallet
+  ---
+  duration_ms: 55.67745
+  type: 'test'
+  ...
+# Subtest: missing wallets, EIP-6963 discovery, multiple provider choice, fallback and cleanup
+ok 11 - missing wallets, EIP-6963 discovery, multiple provider choice, fallback and cleanup
+  ---
+  duration_ms: 49.261219
+  type: 'test'
+  ...
+# Subtest: late nonce after disconnect is cancelled; connection timeout/rejection can be retried
+ok 12 - late nonce after disconnect is cancelled; connection timeout/rejection can be retried
+  ---
+  duration_ms: 232.033855
+  type: 'test'
+  ...
+# Subtest: initial wallet announcements during connect are accepted without creating authentication
+ok 13 - initial wallet announcements during connect are accepted without creating authentication
+  ---
+  duration_ms: 152.085383
+  type: 'test'
+  ...
+# Subtest: isolated preview can connect a wallet but cannot request a challenge or fake authentication
+ok 14 - isolated preview can connect a wallet but cannot request a challenge or fake authentication
+  ---
+  duration_ms: 24.932988
+  type: 'test'
+  ...
+# Subtest: silent account switch while verify is in flight rejects and revokes its returned session
+ok 15 - silent account switch while verify is in flight rejects and revokes its returned session
+  ---
+  duration_ms: 182.346739
+  type: 'test'
+  ...
+# Subtest: capability world changes invalidate and malformed current-session replies become unverified
+ok 16 - capability world changes invalidate and malformed current-session replies become unverified
+  ---
+  duration_ms: 300.43872
+  type: 'test'
+  ...
+# Subtest: late logout acknowledgement cannot overwrite a newer verified account state
+ok 17 - late logout acknowledgement cannot overwrite a newer verified account state
+  ---
+  duration_ms: 269.059861
+  type: 'test'
+  ...
+# Subtest: expiry timer clears verification and revokes server credential without changing the world
+ok 18 - expiry timer clears verification and revokes server credential without changing the world
+  ---
+  duration_ms: 60169.921609
+  type: 'test'
+  ...
+# Subtest: delivered static preview modules match the authoritative shared client bytes
+ok 19 - delivered static preview modules match the authoritative shared client bytes
+  ---
+  duration_ms: 0.812965
+  type: 'test'
+  ...
+# Subtest: recovery: transient config checks retain an existing credential without claiming verification
+ok 20 - recovery: transient config checks retain an existing credential without claiming verification
+  ---
+  duration_ms: 153.322625
+  type: 'test'
+  ...
+# Subtest: recovery: only explicit invalid-session replies expire a session; generic proxy errors do not
+ok 21 - recovery: only explicit invalid-session replies expire a session; generic proxy errors do not
+  ---
+  duration_ms: 144.700886
+  type: 'test'
+  ...
+# Subtest: recovery: manual success cancels old backoff and refreshes are deduplicated
+ok 22 - recovery: manual success cancels old backoff and refreshes are deduplicated
+  ---
+  duration_ms: 181.137956
+  type: 'test'
+  ...
+# Subtest: recovery: Retry-After is a lower bound, including dates and delays longer than a minute
+ok 23 - recovery: Retry-After is a lower bound, including dates and delays longer than a minute
+  ---
+  duration_ms: 168.306262
+  type: 'test'
+  ...
+# Subtest: recovery: a stale refresh cannot block or reset a newer session refresh
+ok 24 - recovery: a stale refresh cannot block or reset a newer session refresh
+  ---
+  duration_ms: 251.239221
+  type: 'test'
+  ...
+# Subtest: recovery: late nonce cannot overwrite the cancellation secret of a newer signing attempt
+ok 25 - recovery: late nonce cannot overwrite the cancellation secret of a newer signing attempt
+  ---
+  duration_ms: 74.919027
+  type: 'test'
+  ...
+# Subtest: recovery: cancelling a delayed verify queues no malformed nonce-only revocations
+ok 26 - recovery: cancelling a delayed verify queues no malformed nonce-only revocations
+  ---
+  duration_ms: 259.208457
+  type: 'test'
+  ...
+# Subtest: recovery: logout requests share one in-flight revocation and require acknowledgement
+ok 27 - recovery: logout requests share one in-flight revocation and require acknowledgement
+  ---
+  duration_ms: 148.542235
+  type: 'test'
+  ...
+# Subtest: recovery: automatic retries grow with bounded jitter, recover, and stop on logout (virtual clock)
+ok 28 - recovery: automatic retries grow with bounded jitter, recover, and stop on logout (virtual clock)
+  ---
+  duration_ms: 28.542346
+  type: 'test'
+  ...
+# Subtest: recovery: structured scope and control characters are checked before any wallet signature
+ok 29 - recovery: structured scope and control characters are checked before any wallet signature
+  ---
+  duration_ms: 265.253842
+  type: 'test'
+  ...
+# Subtest: real HTTP challenge/signature/login/session/logout; private profile survives restart, world unchanged
+ok 30 - real HTTP challenge/signature/login/session/logout; private profile survives restart, world unchanged
+  ---
+  duration_ms: 1078.009392
+  type: 'test'
+  ...
+# Subtest: HTTP rejects wrong signer/address/chain/message/origin, replay and expiry
+ok 31 - HTTP rejects wrong signer/address/chain/message/origin, replay and expiry
+  ---
+  duration_ms: 951.045529
+  type: 'test'
+  ...
+# Subtest: cancel pending or completed challenge safely revokes late authentication
+ok 32 - cancel pending or completed challenge safely revokes late authentication
+  ---
+  duration_ms: 181.833191
+  type: 'test'
+  ...
+# Subtest: malformed input, bounded bodies, exact CORS and method isolation
+ok 33 - malformed input, bounded bodies, exact CORS and method isolation
+  ---
+  duration_ms: 76.666006
+  type: 'test'
+  ...
+# Subtest: bounded nonce/session/profile stores and expiry garbage collection
+ok 34 - bounded nonce/session/profile stores and expiry garbage collection
+  ---
+  duration_ms: 635.300228
+  type: 'test'
+  ...
+# Subtest: forwarded client addresses are accepted only from explicitly trusted peers
+ok 35 - forwarded client addresses are accepted only from explicitly trusted peers
+  ---
+  duration_ms: 18.62325
+  type: 'test'
+  ...
+# Subtest: 50 authenticated polling sessions do not consume sign-in peer quota
+ok 36 - 50 authenticated polling sessions do not consume sign-in peer quota
+  ---
+  duration_ms: 206.909809
+  type: 'test'
+  ...
+# Subtest: 50 real verified signers behind a trusted proxy poll at 30 seconds while another visitor signs in
+ok 37 - 50 real verified signers behind a trusted proxy poll at 30 seconds while another visitor signs in
+  ---
+  duration_ms: 7080.173825
+  type: 'test'
+  ...
+# Subtest: per-peer/global rates and bounded rate-key map reject without affecting world
+ok 38 - per-peer/global rates and bounded rate-key map reject without affecting world
+  ---
+  duration_ms: 46.408643
+  type: 'test'
+  ...
+# Subtest: body deadline returns 408; profile write failure and corrupt restart keep anonymous viewing alive
+ok 39 - body deadline returns 408; profile write failure and corrupt restart keep anonymous viewing alive
+  ---
+  duration_ms: 248.506858
+  type: 'test'
+  ...
+# Subtest: invalid configuration cannot enable authentication
+ok 40 - invalid configuration cannot enable authentication
+  ---
+  duration_ms: 1.065171
+  type: 'test'
+  ...
+# Subtest: auth on a copied schema-4 populated world preserves identity through migration and restart
+ok 41 - auth on a copied schema-4 populated world preserves identity through migration and restart
+  ---
+  duration_ms: 691.454077
+  type: 'test'
+  ...
+# Subtest: review regressions: peer cannot exhaust global ceiling; capacity recovery; CORS Retry-After; rate-key eviction
+ok 42 - review regressions: peer cannot exhaust global ceiling; capacity recovery; CORS Retry-After; rate-key eviction
+  ---
+  duration_ms: 1509.475929
+  type: 'test'
+  ...
+# Subtest: keccak256 and address derivation known vectors
+ok 43 - keccak256 and address derivation known vectors
+  ---
+  duration_ms: 7.756311
+  type: 'test'
+  ...
+# Subtest: signature roundtrip and tamper detection
+ok 44 - signature roundtrip and tamper detection
+  ---
+  duration_ms: 399.350575
+  type: 'test'
+  ...
+# Subtest: sign-in: nonce single-use, origin bound, expiry, roles
+ok 45 - sign-in: nonce single-use, origin bound, expiry, roles
+  ---
+  duration_ms: 1062.537359
+  type: 'test'
+  ...
+# Subtest: server recovers the signer of every ethers-generated valid signature
+ok 46 - server recovers the signer of every ethers-generated valid signature
+  ---
+  duration_ms: 1583.362052
+  type: 'test'
+  ...
+# Subtest: invalid signatures never recover the claimed address (and agree with ethers where ethers recovers)
+ok 47 - invalid signatures never recover the claimed address (and agree with ethers where ethers recovers)
+  ---
+  duration_ms: 319.069742
+  type: 'test'
+  ...
+# Subtest: server-side test signer output is a canonical signature ethers-compatible in shape
+ok 48 - server-side test signer output is a canonical signature ethers-compatible in shape
+  ---
+  duration_ms: 108.928324
+  type: 'test'
+  ...
+# (node:23) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: provider deadline expires at the boundary and a late result cannot reverse it (virtual clock)
+ok 49 - provider deadline expires at the boundary and a late result cannot reverse it (virtual clock)
+  ---
+  duration_ms: 5.174569
+  type: 'test'
+  ...
+# Subtest: network deadline aborts the fetch signal, unwinds counters and permits retry (virtual clock)
+ok 50 - network deadline aborts the fetch signal, unwinds counters and permits retry (virtual clock)
+  ---
+  duration_ms: 33.192683
+  type: 'test'
+  ...
+1..50
+# tests 50
+# suites 0
+# pass 50
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 66610.735891

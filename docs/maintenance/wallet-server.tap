@@ -1,0 +1,124 @@
+TAP version 13
+# Subtest: real HTTP challenge/signature/login/session/logout; private profile survives restart, world unchanged
+ok 1 - real HTTP challenge/signature/login/session/logout; private profile survives restart, world unchanged
+  ---
+  duration_ms: 1176.832516
+  type: 'test'
+  ...
+# Subtest: HTTP rejects wrong signer/address/chain/message/origin, replay and expiry
+ok 2 - HTTP rejects wrong signer/address/chain/message/origin, replay and expiry
+  ---
+  duration_ms: 1188.005225
+  type: 'test'
+  ...
+# Subtest: cancel pending or completed challenge safely revokes late authentication
+ok 3 - cancel pending or completed challenge safely revokes late authentication
+  ---
+  duration_ms: 204.309156
+  type: 'test'
+  ...
+# Subtest: malformed input, bounded bodies, exact CORS and method isolation
+ok 4 - malformed input, bounded bodies, exact CORS and method isolation
+  ---
+  duration_ms: 111.039001
+  type: 'test'
+  ...
+# Subtest: bounded nonce/session/profile stores and expiry garbage collection
+ok 5 - bounded nonce/session/profile stores and expiry garbage collection
+  ---
+  duration_ms: 829.334976
+  type: 'test'
+  ...
+# Subtest: forwarded client addresses are accepted only from explicitly trusted peers
+ok 6 - forwarded client addresses are accepted only from explicitly trusted peers
+  ---
+  duration_ms: 30.815089
+  type: 'test'
+  ...
+# Subtest: 50 authenticated polling sessions do not consume sign-in peer quota
+ok 7 - 50 authenticated polling sessions do not consume sign-in peer quota
+  ---
+  duration_ms: 358.082892
+  type: 'test'
+  ...
+# Subtest: 50 real verified signers behind a trusted proxy poll at 30 seconds while another visitor signs in
+ok 8 - 50 real verified signers behind a trusted proxy poll at 30 seconds while another visitor signs in
+  ---
+  duration_ms: 9074.645746
+  type: 'test'
+  ...
+# Subtest: per-peer/global rates and bounded rate-key map reject without affecting world
+ok 9 - per-peer/global rates and bounded rate-key map reject without affecting world
+  ---
+  duration_ms: 62.950685
+  type: 'test'
+  ...
+# Subtest: body deadline returns 408; profile write failure and corrupt restart keep anonymous viewing alive
+ok 10 - body deadline returns 408; profile write failure and corrupt restart keep anonymous viewing alive
+  ---
+  duration_ms: 290.34367
+  type: 'test'
+  ...
+# Subtest: invalid configuration cannot enable authentication
+ok 11 - invalid configuration cannot enable authentication
+  ---
+  duration_ms: 1.001812
+  type: 'test'
+  ...
+# Subtest: auth on a copied schema-4 populated world preserves identity through migration and restart
+ok 12 - auth on a copied schema-4 populated world preserves identity through migration and restart
+  ---
+  duration_ms: 812.464715
+  type: 'test'
+  ...
+# Subtest: review regressions: peer cannot exhaust global ceiling; capacity recovery; CORS Retry-After; rate-key eviction
+ok 13 - review regressions: peer cannot exhaust global ceiling; capacity recovery; CORS Retry-After; rate-key eviction
+  ---
+  duration_ms: 1754.900181
+  type: 'test'
+  ...
+# Subtest: keccak256 and address derivation known vectors
+ok 14 - keccak256 and address derivation known vectors
+  ---
+  duration_ms: 6.013286
+  type: 'test'
+  ...
+# Subtest: signature roundtrip and tamper detection
+ok 15 - signature roundtrip and tamper detection
+  ---
+  duration_ms: 363.506191
+  type: 'test'
+  ...
+# Subtest: sign-in: nonce single-use, origin bound, expiry, roles
+ok 16 - sign-in: nonce single-use, origin bound, expiry, roles
+  ---
+  duration_ms: 1021.568945
+  type: 'test'
+  ...
+# Subtest: server recovers the signer of every ethers-generated valid signature
+ok 17 - server recovers the signer of every ethers-generated valid signature
+  ---
+  duration_ms: 1818.296728
+  type: 'test'
+  ...
+# Subtest: invalid signatures never recover the claimed address (and agree with ethers where ethers recovers)
+ok 18 - invalid signatures never recover the claimed address (and agree with ethers where ethers recovers)
+  ---
+  duration_ms: 382.085081
+  type: 'test'
+  ...
+# Subtest: server-side test signer output is a canonical signature ethers-compatible in shape
+ok 19 - server-side test signer output is a canonical signature ethers-compatible in shape
+  ---
+  duration_ms: 161.487178
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16328.328562

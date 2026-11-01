@@ -1,0 +1,151 @@
+{
+  "checked": 28,
+  "missing": [],
+  "links": [
+    {
+      "document": "docs/maintenance/README.md",
+      "target": "fuel-baseline.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "target": "../../server/docs/CHAINS.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "target": "../../tests/wallet-deadlines.test.js",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "target": "../../artifacts/world-revision/VALIDATION.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "target": "../../web/public/demo/agency-manifest.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "target": "checkpoint.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "target": "chains.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "target": "VALIDATION.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "README.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "fuel-baseline.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "backend.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "chains.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "wallet-client.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "wallet-server.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "wallet-deadlines.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "wallet-load.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "frontend-tests.txt",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "frontend-all.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "typecheck.txt",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "build.txt",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "checkpoint.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "link-check.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "README.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "README.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "target": "scope-check.json",
+      "exists": true
+    },
+    {
+      "document": "docs/agency/INTEGRATION.md",
+      "target": "../maintenance/README.md",
+      "exists": true
+    },
+    {
+      "document": "docs/chains/VALIDATION.md",
+      "target": "../maintenance/README.md",
+      "exists": true
+    },
+    {
+      "document": "docs/chains/VALIDATION.md",
+      "target": "../../server/docs/CHAINS.md",
+      "exists": true
+    }
+  ],
+  "rootReadmeException": {
+    "target": ".imd-responses.json",
+    "replacement": "artifacts/world-revision/VALIDATION.md",
+    "reason": "Root README is outside assigned writable paths; correction documented in docs/maintenance/README.md."
+  }
+}

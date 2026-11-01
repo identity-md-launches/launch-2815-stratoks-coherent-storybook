@@ -1,0 +1,39 @@
+{
+  "outOfScope": [],
+  "changedFiles": [
+    "docs/agency/INTEGRATION.md",
+    "docs/chains/VALIDATION.md",
+    "docs/maintenance/README.md",
+    "docs/maintenance/VALIDATION.md",
+    "docs/maintenance/backend.tap",
+    "docs/maintenance/build.txt",
+    "docs/maintenance/chains.tap",
+    "docs/maintenance/checkpoint.json",
+    "docs/maintenance/frontend-all.tap",
+    "docs/maintenance/frontend-tests.txt",
+    "docs/maintenance/fuel-baseline.tap",
+    "docs/maintenance/link-check.json",
+    "docs/maintenance/scope-check.json",
+    "docs/maintenance/typecheck.txt",
+    "docs/maintenance/wallet-client.tap",
+    "docs/maintenance/wallet-deadlines.tap",
+    "docs/maintenance/wallet-load.tap",
+    "docs/maintenance/wallet-server.tap",
+    "server/docs/CHAINS.md",
+    "server/src/expanse/engine.js",
+    "tests/chains-multiseed.test.js",
+    "tests/chains.test.js",
+    "tests/expanse-auth-client.test.js",
+    "tests/wallet-deadlines.test.js"
+  ],
+  "unchangedProtectedSurfaces": {
+    "server/src/wallet.js": true,
+    "server/src/auth.js": true,
+    "server/src/expanse/visitor-auth.js": true,
+    "shared/visitor-auth-client.js": true,
+    "shared/visitor-challenge.js": true,
+    "web": true,
+    "dist": true
+  },
+  "note": "Only engine comments changed in production JavaScript; test/signature/network budgets do not modify production settings."
+}

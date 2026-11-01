@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: fuel placement consolidates onto a perceived pile and needs a felt fire demand; demand comes from perception
+not ok 1 - fuel placement consolidates onto a perceived pile and needs a felt fire demand; demand comes from perception
+  ---
+  duration_ms: 20.637616
+  type: 'test'
+  location: '/home/seat10/.identitymd/work/a5805d0d-83ac-40ab-814c-dc44f7ef6b17/348f6b80-9f06-42d1-adac-b9d3e15ecbcb/tests/.fuel-baseline.test.js:99:1'
+  failureType: 'testCodeFailure'
+  error: 'fuel goes onto the existing pile, not a new tile'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///home/seat10/.identitymd/work/a5805d0d-83ac-40ab-814c-dc44f7ef6b17/348f6b80-9f06-42d1-adac-b9d3e15ecbcb/tests/.fuel-baseline.test.js:110:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 142.860491

@@ -45,6 +45,7 @@ test('loading the fixture with the updated engine preserves identity, learned we
     save(dir, e); backup(dir, dest);
     assert.ok(fs.existsSync(path.join(dest, SNAPSHOT)) || fs.readdirSync(dest).length > 0, 'backup written');
     const a = load(dir);
+    assert.deepEqual(a.toState(), e.toState(), 'disk restart preserves the full state, including terrain, stocks and learned data');
     assert.equal(a.creatures.length, s.creatures.length); assert.equal(a.tick, s.tick); assert.equal(a.id, s.id);
     a.run(30); const b = Expanse.fromState(JSON.parse(JSON.stringify(a.toState()))); a.run(30); b.run(30);
     assert.equal(JSON.stringify(a.toState()), JSON.stringify(b.toState()), 'restart mid-run serializes identically');
@@ -96,7 +97,7 @@ test('tool mending consumes exactly one unit of its material and keeps the ledge
   assert.deepEqual(ledger(e), []);
 });
 
-test('fuel placement consolidates onto a perceived pile and needs a felt fire demand; demand comes from perception', () => {
+test('wood-only residents do not scatter fuel even when cold; material demand comes from perception', () => {
   const e = Expanse.create({ initialCount: 4 }, { seed: 3 });
   const c = e.creatures[0];
   e.dropToPile(c.x + 1, c.y, 'stick', 2);
@@ -106,11 +107,49 @@ test('fuel placement consolidates onto a perceived pile and needs a felt fire de
   assert.ok(!offers.some((s) => s.prim === 'place'), 'warm, sated resident is not offered to scatter fuel');
   assert.ok(offers.some((s) => s.prim === 'carry' && s.haul && s.x === c.x + 1), 'nearby pile can be hauled');
   c.warmth = 50; obs = e.perceive(c); offers = e.affordances(c, obs)(c.inventory, null);
-  const place = offers.find((s) => s.prim === 'place');
-  assert.ok(place && place.x === c.x + 1 && place.y === c.y, 'fuel goes onto the existing pile, not a new tile');
+  assert.ok(!offers.some((s) => s.prim === 'place'), 'cold alone cannot start a fire without ignition material');
   const site = e.newStructure(c.x + 2, c.y + 2, c.id); e.shelters.push(site);
   const d = materialDemand(e, c, e.perceive(c));
   assert.ok([...d.keys()].length > 0 && [...d.values()].every((w) => w.startsWith('site:')));
+});
+
+
+// Staged stock enters the same ledger as gathered stock; no production fixture is modified.
+function fuelCase(items) {
+  const e = Expanse.create({ initialCount: 4 }, { seed: 3 }), c = e.creatures[0];
+  assert.deepEqual(c.inventory, {});
+  c.inventory = { ...items }; c.warmth = 50; c.hunger = 10;
+  for (const [item, n] of Object.entries(items)) e.totals.gathered[item] = (e.totals.gathered[item] ?? 0) + n;
+  return { e, c };
+}
+
+for (const ignition of [{ stone: 1 }, { flint: 1, stone: 1 }]) {
+  test(`ignition-ready fuel consolidates onto a perceived pile with exact accounting (${Object.keys(ignition)})`, () => {
+    const { e, c } = fuelCase({ wood: 1, ...ignition });
+    e.dropToPile(c.x + 1, c.y, 'stick', 2); e.totals.gathered.stick = (e.totals.gathered.stick ?? 0) + 2;
+    const before = e.holdings(), piles = pileUnits(e).piles;
+    const place = e.affordances(c, e.perceive(c))(c.inventory, null).find((s) => s.prim === 'place' && s.item === 'wood');
+    assert.ok(place); assert.equal(place.x, c.x + 1); assert.equal(place.y, c.y);
+    c.plan = { raw: [place], idx: 0, actual: [], steps: [], predicted: [], demand: [] };
+    e.startStep(c);
+    for (let i = 0; i < 30 && c.act; i++) e.stepAct(c);
+    assert.equal(c.act, null, 'target reached and placement finished');
+    assert.equal(c.inventory.wood, undefined);
+    assert.equal(e.pileAt(place.x, place.y).items.wood, 1);
+    assert.equal(e.pileAt(place.x, place.y).items.stick, 2);
+    assert.equal(e.totals.placed.wood, 1);
+    assert.equal(pileUnits(e).piles, piles, 'no extra pile created');
+    assert.deepEqual(e.holdings(), before, 'placement transfers rather than consumes stock');
+    assert.deepEqual(ledger(e), []);
+  });
+}
+
+test('flint without stone cannot bootstrap fuel; an on-tile pile can still consolidate wood', () => {
+  const { e, c } = fuelCase({ wood: 1, flint: 1 });
+  assert.ok(!e.affordances(c, e.perceive(c))(c.inventory, null).some((s) => s.prim === 'place'));
+  e.dropToPile(c.x, c.y, 'stick', 1); e.totals.gathered.stick = (e.totals.gathered.stick ?? 0) + 1;
+  assert.ok(e.affordances(c, e.perceive(c))(c.inventory, null).some((s) => s.prim === 'place' && s.item === 'wood'));
+  assert.deepEqual(ledger(e), []);
 });
 
 test('stockpile aggregation keeps exact quantities and member ids', () => {

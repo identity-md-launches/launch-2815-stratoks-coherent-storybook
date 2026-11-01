@@ -1,0 +1,247 @@
+
+> stratoks-client@0.1.0 test
+> tsx --test src/*.test.ts
+
+TAP version 13
+# Subtest: isometric basis points preserve existing coordinates, including negative chunk boundaries
+ok 1 - isometric basis points preserve existing coordinates, including negative chunk boundaries
+  ---
+  duration_ms: 6.15557
+  type: 'test'
+  ...
+# Subtest: all visible in-world screen samples are covered by the bounded API query at every zoom and aspect
+ok 2 - all visible in-world screen samples are covered by the bounded API query at every zoom and aspect
+  ---
+  duration_ms: 4.110269
+  type: 'test'
+  ...
+# Subtest: zoom keeps the pointer world coordinate stable, while minimap uses the same world bounds
+ok 3 - zoom keeps the pointer world coordinate stable, while minimap uses the same world bounds
+  ---
+  duration_ms: 0.456227
+  type: 'test'
+  ...
+# Subtest: defect 2: every corner tile can be centred at all supported zooms and aspects
+ok 4 - defect 2: every corner tile can be centred at all supported zooms and aspects
+  ---
+  duration_ms: 2.159368
+  type: 'test'
+  ...
+# Subtest: primitive intentions cannot make a false work/rest/fishing pose
+ok 5 - primitive intentions cannot make a false work/rest/fishing pose
+  ---
+  duration_ms: 0.441842
+  type: 'test'
+  ...
+# Subtest: fishing casts only with actual phase and obtainable line; no catch frame is invented
+ok 6 - fishing casts only with actual phase and obtainable line; no catch frame is invented
+  ---
+  duration_ms: 0.582442
+  type: 'test'
+  ...
+# Subtest: loads and construction follow confirmed inventory/materials instead of destination plans
+ok 7 - loads and construction follow confirmed inventory/materials instead of destination plans
+  ---
+  duration_ms: 0.355501
+  type: 'test'
+  ...
+# Subtest: defect 4: repair phase requires work tool and repair material, never food alone
+ok 8 - defect 4: repair phase requires work tool and repair material, never food alone
+  ---
+  duration_ms: 0.25896
+  type: 'test'
+  ...
+# Subtest: new activity art needs actual work, local object, input and heat/water
+ok 9 - new activity art needs actual work, local object, input and heat/water
+  ---
+  duration_ms: 0.788487
+  type: 'test'
+  ...
+# Subtest: finding f08d8a7: a held berry never turns wood work into berry picking
+ok 10 - finding f08d8a7: a held berry never turns wood work into berry picking
+  ---
+  duration_ms: 0.785883
+  type: 'test'
+  ...
+# Subtest: tool-free wood and stick work never selects a prop-bearing cell, even with carried food
+ok 11 - tool-free wood and stick work never selects a prop-bearing cell, even with carried food
+  ---
+  duration_ms: 1.861873
+  type: 'test'
+  ...
+# Subtest: configuration permits HTTPS subpaths and refuses credentials or mixed content
+ok 12 - configuration permits HTTPS subpaths and refuses credentials or mixed content
+  ---
+  duration_ms: 0.658897
+  type: 'test'
+  ...
+# Subtest: wire query preserves negative world coordinates and selected creature
+ok 13 - wire query preserves negative world coordinates and selected creature
+  ---
+  duration_ms: 0.231206
+  type: 'test'
+  ...
+# Subtest: incompatible and incoherent frames are not presented as shared state
+ok 14 - incompatible and incoherent frames are not presented as shared state
+  ---
+  duration_ms: 0.322097
+  type: 'test'
+  ...
+# Subtest: bounded viewport cache reuses unchanged ticks and invalidates camera, terrain and world identity
+ok 15 - bounded viewport cache reuses unchanged ticks and invalidates camera, terrain and world identity
+  ---
+  duration_ms: 63.971009
+  type: 'test'
+  ...
+# Subtest: worn paint uses reported shelters and adjacent travel without crossing blocked land or water
+ok 16 - worn paint uses reported shelters and adjacent travel without crossing blocked land or water
+  ---
+  duration_ms: 1.283522
+  type: 'test'
+  ...
+# Subtest: defect 3: connected cliffs expose only drops; water banks and snow use real terrain kinds
+ok 17 - defect 3: connected cliffs expose only drops; water banks and snow use real terrain kinds
+  ---
+  duration_ms: 2.21798
+  type: 'test'
+  ...
+# Subtest: terrain picking and query cover all four corners, negative chunks, raised ground, zoom and aspect
+ok 18 - terrain picking and query cover all four corners, negative chunks, raised ground, zoom and aspect
+  ---
+  duration_ms: 586.913022
+  type: 'test'
+  ...
+# Subtest: off-world and unknown terrain cannot be picked or invented by relief
+ok 19 - off-world and unknown terrain cannot be picked or invented by relief
+  ---
+  duration_ms: 0.406527
+  type: 'test'
+  ...
+# Subtest: connected contour deforms the complete crest AND toe, with shared corners and exact picking
+ok 20 - connected contour deforms the complete crest AND toe, with shared corners and exact picking
+  ---
+  duration_ms: 6.097031
+  type: 'test'
+  ...
+# Subtest: contour mesh joins identical edges across corners, negative coordinates and streamed view overlap
+ok 21 - contour mesh joins identical edges across corners, negative coordinates and streamed view overlap
+  ---
+  duration_ms: 6.578361
+  type: 'test'
+  ...
+# Subtest: three real policies acquire, reverse and lose preference with output ablation across ten seeds
+ok 22 - three real policies acquire, reverse and lose preference with output ablation across ten seeds
+  ---
+  duration_ms: 5359.0093
+  type: 'test'
+  ...
+# Subtest: lab reproducibility, validation and bounded retained evidence
+ok 23 - lab reproducibility, validation and bounded retained evidence
+  ---
+  duration_ms: 649.852508
+  type: 'test'
+  ...
+# Subtest: uncertain interventions stay owned by the actor, world and service across reloads
+ok 24 - uncertain interventions stay owned by the actor, world and service across reloads
+  ---
+  duration_ms: 1.972896
+  type: 'test'
+  ...
+# Subtest: legacy payloads remain readable but cannot be mistaken for actor-owned storage
+ok 25 - legacy payloads remain readable but cannot be mistaken for actor-owned storage
+  ---
+  duration_ms: 0.412813
+  type: 'test'
+  ...
+# Subtest: invalid stored requests cannot be retried
+ok 26 - invalid stored requests cannot be retried
+  ---
+  duration_ms: 0.270132
+  type: 'test'
+  ...
+# Subtest: 429 and durability/busy errors expose actionable honest server guidance
+ok 27 - 429 and durability/busy errors expose actionable honest server guidance
+  ---
+  duration_ms: 28.902144
+  type: 'test'
+  ...
+# Subtest: event cursor is bounded and pagination uses the server cursor unchanged
+ok 28 - event cursor is bounded and pagination uses the server cursor unchanged
+  ---
+  duration_ms: 1.349833
+  type: 'test'
+  ...
+# Subtest: responses from a stopped connection cannot update a new world
+ok 29 - responses from a stopped connection cannot update a new world
+  ---
+  duration_ms: 5.733622
+  type: 'test'
+  ...
+# Subtest: actual simulation snapshot is rendered as an entity map with its real population
+ok 30 - actual simulation snapshot is rendered as an entity map with its real population
+  ---
+  duration_ms: 71.531914
+  type: 'test'
+  ...
+# Subtest: delta updates one creature, removes consumed resources, and deduplicates replayed events
+ok 31 - delta updates one creature, removes consumed resources, and deduplicates replayed events
+  ---
+  duration_ms: 33.390454
+  type: 'test'
+  ...
+# Subtest: a sequence gap freezes existing state and asks for a full snapshot
+ok 32 - a sequence gap freezes existing state and asks for a full snapshot
+  ---
+  duration_ms: 22.21825
+  type: 'test'
+  ...
+# Subtest: reconnect snapshot replaces entities without duplicating past events
+ok 33 - reconnect snapshot replaces entities without duplicating past events
+  ---
+  duration_ms: 15.792018
+  type: 'test'
+  ...
+# Subtest: developer reset replaces world, history, events and sequence rather than merging old identities
+ok 34 - developer reset replaces world, history, events and sequence rather than merging old identities
+  ---
+  duration_ms: 15.595669
+  type: 'test'
+  ...
+# Subtest: a snapshot from an earlier restored backup discards events from the abandoned timeline
+ok 35 - a snapshot from an earlier restored backup discards events from the abandoned timeline
+  ---
+  duration_ms: 16.076126
+  type: 'test'
+  ...
+# Subtest: malformed snapshot is refused without changing the current world
+ok 36 - malformed snapshot is refused without changing the current world
+  ---
+  duration_ms: 26.688588
+  type: 'test'
+  ...
+# Subtest: same-tick snapshot recovery discards uncommitted events as well as lower-tick recovery
+ok 37 - same-tick snapshot recovery discards uncommitted events as well as lower-tick recovery
+  ---
+  duration_ms: 17.30539
+  type: 'test'
+  ...
+# Subtest: restart epoch clears abandoned events even when the new sequence has already caught up
+ok 38 - restart epoch clears abandoned events even when the new sequence has already caught up
+  ---
+  duration_ms: 14.673547
+  type: 'test'
+  ...
+1..38
+# tests 38
+# suites 0
+# pass 38
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6313.378563
+npm notice
+npm notice New major version of npm available! 10.9.9 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

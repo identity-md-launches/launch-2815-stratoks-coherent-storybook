@@ -1,0 +1,24 @@
+TAP version 13
+# (node:10) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: provider deadline expires at the boundary and a late result cannot reverse it (virtual clock)
+ok 1 - provider deadline expires at the boundary and a late result cannot reverse it (virtual clock)
+  ---
+  duration_ms: 3.364803
+  type: 'test'
+  ...
+# Subtest: network deadline aborts the fetch signal, unwinds counters and permits retry (virtual clock)
+ok 2 - network deadline aborts the fetch signal, unwinds counters and permits retry (virtual clock)
+  ---
+  duration_ms: 30.50978
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 138.017732

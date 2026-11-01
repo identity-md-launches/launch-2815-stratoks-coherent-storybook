@@ -1,0 +1,12 @@
+{
+  "file": "web/public/demo/agency-checkpoint.json.gz",
+  "sha256": "dfd1876c94afe40505583ed4f6094891bd8f5195439238e039bc44892ef907ab",
+  "matchesManifest": true,
+  "matchesDist": true,
+  "schema": 5,
+  "tick": 12600,
+  "residents": 168,
+  "crops": 7,
+  "standing": 73,
+  "shelterRecords": 94
+}

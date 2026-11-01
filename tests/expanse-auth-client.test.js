@@ -9,7 +9,9 @@ import { VisitorAuthClient, discoverWallets, validateChallenge } from '../shared
 import { startExpanse } from '../server/src/expanse/server.js';
 import { addressFromPrivateKey, signForTests } from '../server/src/wallet.js';
 const origin = 'https://world.example', uri = origin + '/';
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+// Real HTTP/crypto gets the production network budget. Only deliberately stalled operations
+// use short deadlines; entry barriers separate them from network and signing latency.
+const HTTP_TIMEOUT_MS = 10_000;
 function deferred() { let resolve; const promise = new Promise((r) => { resolve = r; }); return { promise, resolve }; }
 class SimulatedWallet extends EventEmitter {
   constructor() { super(); this.key = randomBytes(32).toString('hex'); this.address = addressFromPrivateKey(this.key); this.chain = '0x1'; this.methods = []; this.sign = null; }
@@ -28,7 +30,7 @@ async function app(t, overrides = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'visitor-client-'));
   const settings = { dataDir: dir, seed: 101, initialCount: 2, port: 0, tickMs: 1_000_000, auth: { uri } };
   let svc = startExpanse(settings); await once(svc.server, 'listening');
-  const client = new VisitorAuthClient({ baseUrl: `http://127.0.0.1:${svc.server.address().port}`, uri, origin, timeoutMs: 500, ...overrides });
+  const client = new VisitorAuthClient({ baseUrl: `http://127.0.0.1:${svc.server.address().port}`, uri, origin, timeoutMs: HTTP_TIMEOUT_MS, ...overrides });
   const wallet = new SimulatedWallet(); await client.loadConfig(); await client.connect(wallet);
   t.after(async () => { client.destroy(); await client.retryRevocations().catch(() => {}); await svc.stop(); fs.rmSync(dir, { recursive: true, force: true }); });
   return { client, wallet, get svc() { return svc; }, async restart() { await svc.stop(); svc = startExpanse(settings); await once(svc.server, 'listening'); client.baseUrl = `http://127.0.0.1:${svc.server.address().port}`; } };
@@ -48,20 +50,21 @@ test('client uses actual HTTP crypto verification and server logout; connecting 
 });
 
 test('transient session-check errors retain credentials, deduplicate checks and recover without false verification', async (t) => {
-  const { client } = await app(t, { timeoutMs: 5000 }); await client.signIn(); assert.ok(client.session, client.error);
+  const { client } = await app(t); await client.signIn(); assert.ok(client.session, client.error);
+  t.mock.timers.enable({ apis: ['Date'], now: Date.now() });
   const session = client.session, native = client.fetch; let calls = 0;
   client.fetch = async (...args) => {
-    if (args[0].endsWith('/session')) { calls++; await delay(25); return new Response('{"error":"rate_limited"}', { status: 429, headers: { 'content-type': 'application/json', 'retry-after': '2' } }); }
+    if (args[0].endsWith('/session')) { calls++; return new Response('{"error":"rate_limited"}', { status: 429, headers: { 'content-type': 'application/json', 'retry-after': '2' } }); }
     return native(...args);
   };
   await Promise.all([client.refreshSession(), client.refreshSession(), client.refreshSession()]);
   assert.equal(calls, 1); assert.equal(client.session.token, session.token); assert.equal(client.state, 'unavailable');
   client.fetch = native;
   await client.refreshSession(); assert.equal(calls, 1, 'focus cannot bypass Retry-After');
-  // Use the client's calculated Retry-After deadline, then drive one refresh explicitly.  A fixed polling budget
-  // races the real timer when this test shares an event loop with long simulation tests.
-  await delay(Math.max(0, client.retryAt - Date.now()) + 250);
+  // Cross the actual deadline without sleeping or racing the background retry.
+  t.mock.timers.setTime(client.retryAt);
   await client.refreshSession({ retryNow: true });
+  t.mock.timers.reset();
   assert.equal(client.session.token, session.token); assert.equal(client.state, 'verified');
 });
 
@@ -108,30 +111,41 @@ test('late verification response after account switch is cancelled on server', a
 });
 
 test('declined signature, locked wallet and provider timeout leave buttons recoverable', async (t) => {
-  const { client, wallet } = await app(t); client.timeoutMs = 80;
+  const { client, wallet } = await app(t);
   wallet.sign = async () => { throw Object.assign(new Error('User rejected'), { code: 4001 }); };
   await client.signIn(); assert.match(client.error, /Signature declined/); assert.equal(client.busy, false);
-  wallet.sign = () => new Promise(() => {});
-  await client.signIn(); assert.match(client.error, /timed out/); assert.equal(client.busy, false);
-  client.timeoutMs = 500; wallet.sign = null; await client.signIn(); assert.equal(client.state, 'verified');
+  const entered = deferred();
+  client.signatureTimeoutMs = 80;
+  wallet.sign = () => { entered.resolve(); return new Promise(() => {}); };
+  const pending = client.signIn(); await entered.promise; await pending;
+  assert.match(client.error, /timed out/); assert.equal(client.busy, false);
+  client.signatureTimeoutMs = undefined; wallet.sign = null; await client.signIn(); assert.equal(client.state, 'verified');
   await client.logout(); await client.connect({ request: async () => [] }); assert.equal(client.state, 'disconnected'); assert.equal(client.busy, false); assert.match(client.error, /locked/);
   await client.connect(wallet); assert.equal(client.state, 'connected');
 });
 
 test('signature reading timeout is independently bounded and cancelled without shortening backend requests', async (t) => {
   const { client, wallet, svc } = await app(t, { signatureTimeoutMs: 60 });
-  wallet.sign = () => new Promise(() => {});
-  await client.signIn(); assert.equal(client.busy, false); assert.match(client.error, /timed out/);
-  assert.equal(client.timeoutMs, 500); assert.equal(svc.auth.nonces.size, 0); assert.equal(svc.auth.sessions.size, 0);
-  wallet.sign = null; await client.signIn(); assert.equal(client.state, 'verified');
+  const entered = deferred();
+  wallet.sign = () => { entered.resolve(); return new Promise(() => {}); };
+  const pending = client.signIn(); await entered.promise;
+  assert.equal(client.busy, true); assert.equal(svc.auth.nonces.size, 1); assert.equal(svc.auth.sessions.size, 0);
+  await pending;
+  assert.equal(client.busy, false); assert.match(client.error, /timed out/);
+  assert.equal(client.timeoutMs, HTTP_TIMEOUT_MS); assert.equal(svc.auth.nonces.size, 0); assert.equal(svc.auth.sessions.size, 0);
+  client.signatureTimeoutMs = undefined; wallet.sign = null; await client.signIn(); assert.equal(client.state, 'verified');
 });
 
 test('backend timeout/offline logout, unavailable capability and retry', async (t) => {
   const { client, wallet, svc } = await app(t); await client.signIn(); const token = client.session.token;
   const realFetch = client.fetch; client.timeoutMs = 40;
-  client.fetch = (_, opts) => new Promise((resolve, reject) => opts.signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' })), { once: true }));
-  await client.logout(); assert.equal(client.session, null); assert.match(client.error, /pending while offline/); assert.ok(client.revocations.size > 0); assert.ok(svc.auth.session(token, origin));
-  client.fetch = realFetch; client.timeoutMs = 500; await client.logout(); assert.match(client.error, /Signed out on the server/); assert.throws(() => svc.auth.session(token, origin));
+  const entered = deferred();
+  client.fetch = (_, opts) => new Promise((resolve, reject) => {
+    opts.signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' })), { once: true });
+    entered.resolve();
+  });
+  const pending = client.logout(); await entered.promise; await pending; assert.equal(client.session, null); assert.match(client.error, /pending while offline/); assert.ok(client.revocations.size > 0); assert.ok(svc.auth.session(token, origin));
+  client.fetch = realFetch; client.timeoutMs = HTTP_TIMEOUT_MS; await client.logout(); assert.match(client.error, /Signed out on the server/); assert.throws(() => svc.auth.session(token, origin));
   client.fetch = async () => new Response(JSON.stringify({ enabled: false, version: 1 }));
   await assert.rejects(client.loadConfig()); assert.equal(client.state, 'unavailable');
   const previousSignCount = wallet.methods.filter((m) => m === 'personal_sign').length;
@@ -174,9 +188,13 @@ test('late nonce after disconnect is cancelled; connection timeout/rejection can
   const attempt = client.signIn(); await entered.promise; client.disconnect(); gate.resolve(); await attempt;
   assert.equal(client.session, null); assert.equal(svc.auth.nonces.size, 0); assert.equal(svc.auth.sessions.size, 0);
   client.fetch = native; client.timeoutMs = 50;
-  await client.connect({ request: () => new Promise(() => {}) }); assert.equal(client.busy, false); assert.match(client.error, /timed out/);
+  const connecting = deferred();
+  const pending = client.connect({ request: () => { connecting.resolve(); return new Promise(() => {}); } });
+  await connecting.promise;
+  assert.equal(client.busy, true); await pending;
+  assert.equal(client.busy, false); assert.match(client.error, /timed out/);
   await client.connect({ request: async () => { throw Object.assign(new Error('declined'), { code: 4001 }); } }); assert.equal(client.busy, false); assert.match(client.error, /Connection declined/);
-  client.timeoutMs = 500; await client.connect(wallet); await client.signIn(); assert.equal(client.state, 'verified');
+  client.timeoutMs = HTTP_TIMEOUT_MS; await client.connect(wallet); await client.signIn(); assert.equal(client.state, 'verified');
 });
 
 test('initial wallet announcements during connect are accepted without creating authentication', async (t) => {
@@ -259,10 +277,14 @@ test('late logout acknowledgement cannot overwrite a newer verified account stat
 });
 
 test('expiry timer clears verification and revokes server credential without changing the world', async (t) => {
-  const { client, svc } = await app(t); svc.auth.cfg.sessionTtlMs = 80;
-  const before = svc.world.toState();
+  const { client, svc } = await app(t); svc.auth.cfg.sessionTtlMs = 60_000;
+  const before = svc.world.toState(), expired = deferred();
+  const onChange = client.onChange;
+  client.onChange = (state) => { onChange(state); if (state.state === 'expired') expired.resolve(); };
   await client.signIn(); assert.equal(client.state, 'verified');
-  await delay(100); await client.retryRevocations();
+  // Wait for the actual state transition, not a sleep guessed to outlast it. Network/crypto latency has
+  // the full production request budget; session lifetime is intentionally much longer than that budget.
+  await expired.promise; await client.retryRevocations();
   assert.equal(client.state, 'expired'); assert.equal(client.session, null);
   assert.equal(svc.auth.sessions.size, 0); assert.deepEqual(svc.world.toState(), before);
 });
@@ -343,7 +365,12 @@ test('recovery: a stale refresh cannot block or reset a newer session refresh', 
   const fresh = client.refreshSession();
   // Give the HTTP request a bounded opportunity to enter; always release both gates on failure.
   try {
-    await Promise.race([entered[1].promise, delay(500)]);
+    let timer;
+    try {
+      await Promise.race([entered[1].promise, new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('new refresh did not enter HTTP')), HTTP_TIMEOUT_MS);
+      })]);
+    } finally { clearTimeout(timer); }
     assert.equal(calls, 2, 'new generation must have its own refresh');
     gates[0].resolve(); await old;
     const duplicate = client.refreshSession();
