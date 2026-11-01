@@ -314,18 +314,18 @@ export class Expanse {
       // optionally flint). Target a perceived pile within 2 tiles when available to avoid scattering fuel.
       // An on-tile pile permits consolidation without ignition; this does not guarantee a successful fire.
       const fireWanted = this.fireDemand(c, obs), pileNear = pileHere ?? obs.piles.filter((p) => !this.shelters.some((s) => s.x === p.x && s.y === p.y)).sort((a, b) => Math.max(Math.abs(a.x - c.x), Math.abs(a.y - c.y)) - Math.max(Math.abs(b.x - c.x), Math.abs(b.y - c.y)) || (a.id < b.id ? -1 : 1))[0];
-      // Starting a new fire is only offered when this resident can finish the local sequence now. This prevents
-      // hungry residents from scattering a fuel pile they cannot ignite after walking away.
+      // A held striker permits an ignition attempt, not guaranteed success. Spark misses still abort the
+      // current plan; no automatic retries, cleanup, stock deletion or global pile cap are imposed.
       // Flint struck on stone is most reliable; an ordinary sharp stone is a slower, less reliable fallback. Both
       // consume only the fuel placed on the ground, so no material is conjured to bootstrap a settlement fire.
-      const canIgnite = (!!inv.flint && !!inv.stone) || !!inv.stone;
+      const canIgnite = !!inv.stone;
       const canStartHere = c.warmth < 70 || obs.self.temp < 8 || heldCookable;
       for (const it of held) {
         if (FUEL[it] && ((canStartHere && (pileHere || canIgnite)) || pileHere)) out.push({ prim: 'place', item: it, purpose: fireWanted ? 'prepare-fire' : undefined, ...(pileNear && !pileHere ? { x: pileNear.x, y: pileNear.y } : {}), key: modelKey('place', it, pileNear ? 'pile' : 'ground'), consumes: [it], label: 'GATHER_WOOD' });
         const striker = (it === 'flint' && inv.stone) || it === 'stone';
         // When this pile was deliberately made for a needed meal, keep the next attempt to a viable striker;
         // trying to rub the fuel/food itself on the pile is neither a useful replan nor a cooking demonstration.
-        if (c.energy >= 1.5 && (prev?.prim === 'place' || pileHere) && (!fireWanted || !canIgnite || striker)) out.push({ prim: 'use', item: it, on: 'pile', purpose: striker ? 'prepare-fire' : undefined, key: modelKey('use', `${it}@pile`), consumes: [it], label: 'GATHER_WOOD' });
+        if (c.energy >= 1.5 && (prev?.prim === 'place' || pileHere) && (!fireWanted || !canIgnite || striker)) out.push({ prim: 'use', item: it, on: 'pile', purpose: striker ? 'prepare-fire' : undefined, key: modelKey('use', `${it}@pile`), consumes: [], label: 'GATHER_WOOD' });
         if (fireNear && c.energy >= 1) out.push({ prim: 'use', item: it, on: 'fire', fire: fireNear.id, x: fireNear.x, y: fireNear.y, key: modelKey('use', `${it}@fire`), consumes: [it], label: 'GATHER_WOOD' });
       }
       if (pileHere && !full && !prev) for (const it of Object.keys(pileHere.items).slice(0, 3)) out.push({ prim: 'carry', item: it, key: modelKey('carry', it), label: 'GATHER_WOOD' });

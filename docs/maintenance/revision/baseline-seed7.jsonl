@@ -1,0 +1,9 @@
+{"tick":1000,"residents":42,"created":{"place":48,"drop":5},"live":{"place":{"piles":18,"units":26,"wood":19,"singleWood":10},"drop":{"piles":2,"units":3,"wood":0,"singleWood":0}},"exact":true}
+{"tick":2000,"residents":48,"created":{"place":71,"drop":11},"live":{"place":{"piles":27,"units":45,"wood":30,"singleWood":11},"drop":{"piles":5,"units":10,"wood":2,"singleWood":0}},"exact":true}
+{"tick":3000,"residents":54,"created":{"place":91,"drop":13},"live":{"place":{"piles":27,"units":51,"wood":28,"singleWood":9},"drop":{"piles":5,"units":9,"wood":1,"singleWood":0}},"exact":true}
+{"tick":4000,"residents":60,"created":{"place":109,"drop":19},"live":{"place":{"piles":31,"units":63,"wood":34,"singleWood":11},"drop":{"piles":7,"units":13,"wood":4,"singleWood":0}},"exact":true}
+{"tick":5000,"residents":69,"created":{"place":139,"drop":28},"live":{"place":{"piles":43,"units":82,"wood":55,"singleWood":21},"drop":{"piles":10,"units":18,"wood":3,"singleWood":0}},"exact":true}
+{"tick":6000,"residents":84,"created":{"place":174,"drop":36},"live":{"place":{"piles":50,"units":100,"wood":65,"singleWood":18},"drop":{"piles":7,"units":12,"wood":0,"singleWood":0}},"exact":true}
+{"tick":7000,"residents":95,"created":{"place":217,"drop":46},"live":{"place":{"piles":62,"units":114,"wood":64,"singleWood":21},"drop":{"piles":14,"units":35,"wood":2,"singleWood":0}},"exact":true}
+{"tick":8000,"residents":108,"created":{"place":264,"drop":64},"live":{"place":{"piles":76,"units":147,"wood":88,"singleWood":26},"drop":{"piles":18,"units":54,"wood":11,"singleWood":0}},"exact":true}
+{"tick":9000,"residents":115,"created":{"place":312,"drop":74},"live":{"place":{"piles":91,"units":203,"wood":125,"singleWood":30},"drop":{"piles":26,"units":81,"wood":16,"singleWood":4}},"exact":true}

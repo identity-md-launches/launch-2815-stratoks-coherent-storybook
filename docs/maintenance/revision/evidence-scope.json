@@ -1,0 +1,11 @@
+{
+  "incomingCommit": "0f33730ba577d1502e746aa2ace611324549bf85",
+  "incomingStorybookFiles": [],
+  "referencedValidationExists": false,
+  "referencedDesktopImagesExist": {
+    "docs/storybook/after-1440-mid.jpg": false,
+    "docs/storybook/before-1440-mid.jpg": false
+  },
+  "historicalAgencyRecordingExists": true,
+  "assignment": "Fuel placement, deterministic wallet tests, stale evidence docs; no visual implementation or deployment"
+}

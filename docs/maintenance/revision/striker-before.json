@@ -1,0 +1,17 @@
+{
+  "offer": {
+    "prim": "use",
+    "item": "stone",
+    "on": "pile",
+    "purpose": "prepare-fire",
+    "key": "use|stone@pile|",
+    "consumes": [
+      "stone"
+    ],
+    "label": "GATHER_WOOD"
+  },
+  "inventoryAfter": {
+    "wood": 1,
+    "stone": 1
+  }
+}

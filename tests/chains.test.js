@@ -160,3 +160,32 @@ test('stockpile aggregation keeps exact quantities and member ids', () => {
   assert.equal(aggregatePiles(piles, 1).reduce((t, x) => t + x.units, 0), 7);
   assert.deepEqual([0, 1, 3, 10, 40].map(pileSizeClass), [0, 1, 2, 3, 4]);
 });
+
+for (const striker of ['stone', 'flint']) {
+  test(`${striker} pile strikes retain inventory in planner predictions and failed/successful execution`, async () => {
+    const { plan } = await import('../server/src/expanse/agent.js');
+    const { e, c } = fuelCase({ stone: 1, ...(striker === 'flint' ? { flint: 1 } : {}) });
+    e.dropToPile(c.x, c.y, 'stick', 1); e.totals.gathered.stick = (e.totals.gathered.stick ?? 0) + 1;
+    const inv = { ...c.inventory }, offers = e.affordances(c, e.perceive(c));
+    const strikes = (inventory, prev) => offers(inventory, prev).filter((s) => s.prim === 'use' && s.on === 'pile' && s.item === striker);
+    const candidates = plan(c.mind, { inventory: inv }, strikes, { horizon: 3 });
+    assert.ok(candidates.some((p) => p.steps.length === 3), 'three strikes remain feasible with the same held striker');
+    assert.ok(candidates.every((p) => p.steps.every((s) => s.consumes.length === 0)));
+    const before = e.holdings(), next = e.rng.next;
+    try {
+      // Only the spark RNG is controlled: these are direct engine steps, not autonomous-run evidence.
+      for (const spark of [0.999999, 0.999999, 0]) {
+        e.rng.next = () => spark;
+        const step = strikes(c.inventory, null)[0]; assert.ok(step);
+        c.plan = { raw: [step], idx: 0, actual: [], steps: [], predicted: [], demand: [] };
+        e.startStep(c); for (let i = 0; i < 10 && c.act; i++) e.stepAct(c);
+        assert.equal(c.act, null);
+        assert.deepEqual(c.inventory, inv, 'striker retained on both failure and success');
+        assert.deepEqual(ledger(e), []);
+        if (spark) { assert.deepEqual(e.holdings(), before); assert.equal(e.pileAt(c.x, c.y).items.stick, 1); assert.equal(e.fires.length, 0); }
+      }
+      assert.equal(e.pileAt(c.x, c.y), null);
+      assert.equal(e.fires.length, 1); assert.equal(e.totals.burnedItems.stick, 1);
+    } finally { e.rng.next = next; }
+  });
+}

@@ -1,0 +1,19 @@
+✔ fixture is a representative schema-5 world with 300+ residents and accumulated ground stocks (421.989131ms)
+✔ loading the fixture with the updated engine preserves identity, learned weights, memories and inventory; save/load/restart is exact (9688.716657ms)
+✔ unattended run: bounded ground piles, all three chains complete, decision evidence bounded and state-derived (26101.395974ms)
+✔ tool mending consumes exactly one unit of its material and keeps the ledger exact; tools wear out with use (8.657764ms)
+✔ wood-only residents do not scatter fuel even when cold; material demand comes from perception (16.719139ms)
+✔ ignition-ready fuel consolidates onto a perceived pile with exact accounting (stone) (6.251211ms)
+✔ ignition-ready fuel consolidates onto a perceived pile with exact accounting (flint,stone) (6.35463ms)
+✔ flint without stone cannot bootstrap fuel; an on-tile pile can still consolidate wood (14.091827ms)
+✔ stockpile aggregation keeps exact quantities and member ids (0.428619ms)
+✔ stone pile strikes retain inventory in planner predictions and failed/successful execution (10.238918ms)
+✔ flint pile strikes retain inventory in planner predictions and failed/successful execution (8.391645ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36614.47271

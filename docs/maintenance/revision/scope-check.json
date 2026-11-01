@@ -1,0 +1,242 @@
+{
+  "changedPaths": [
+    ".imd-responses.json",
+    "docs/maintenance/README.md",
+    "docs/maintenance/VALIDATION.md",
+    "docs/maintenance/revision/VALIDATION.md",
+    "docs/maintenance/revision/backend-final.tap",
+    "docs/maintenance/revision/baseline-seed7.jsonl",
+    "docs/maintenance/revision/build.txt",
+    "docs/maintenance/revision/chains-final.tap",
+    "docs/maintenance/revision/evidence-scope.json",
+    "docs/maintenance/revision/frontend.tap",
+    "docs/maintenance/revision/growth-samples.json",
+    "docs/maintenance/revision/regressions-after.tap",
+    "docs/maintenance/revision/regressions-before.tap",
+    "docs/maintenance/revision/scope-check.json",
+    "docs/maintenance/revision/striker-before.json",
+    "docs/maintenance/revision/typecheck.txt",
+    "docs/maintenance/revision/wallet-load.tap",
+    "server/docs/CHAINS.md",
+    "server/src/expanse/engine.js",
+    "tests/chains-multiseed.test.js",
+    "tests/chains.test.js"
+  ],
+  "outOfScope": [],
+  "protectedAuthCodeChanged": false,
+  "rootResponsesExist": true,
+  "responseCount": 4,
+  "documentationLinks": [
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "revision/VALIDATION.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "fuel-baseline.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "../../server/docs/CHAINS.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "../../tests/wallet-deadlines.test.js",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "../../artifacts/world-revision/VALIDATION.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "../../web/public/demo/agency-manifest.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "checkpoint.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "chains.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/README.md",
+      "link": "VALIDATION.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "revision/VALIDATION.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "README.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "fuel-baseline.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "backend.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "chains.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "wallet-client.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "wallet-server.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "wallet-deadlines.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "wallet-load.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "frontend-tests.txt",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "frontend-all.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "typecheck.txt",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "build.txt",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "checkpoint.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "link-check.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "README.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "README.md",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/VALIDATION.md",
+      "link": "scope-check.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "striker-before.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "regressions-before.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "regressions-after.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "baseline-seed7.jsonl",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "evidence-scope.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "backend-final.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "chains-final.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "growth-samples.json",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "wallet-load.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "frontend.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "typecheck.txt",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "build.txt",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "regressions-after.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "regressions-before.tap",
+      "exists": true
+    },
+    {
+      "document": "docs/maintenance/revision/VALIDATION.md",
+      "link": "scope-check.json",
+      "exists": true
+    }
+  ],
+  "missingLinks": []
+}

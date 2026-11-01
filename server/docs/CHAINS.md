@@ -10,6 +10,7 @@ memory or learned weight is touched. An older server ignores the extra fields.
 | Rule | Before | Now |
 |---|---|---|
 | `place` (fuel on ground) | always offered for any held fuel, onto the resident's current tile | away from an on-tile pile, requires warmth < 70, perceived temperature < 8 °C, or held cookable food, **and held stone** (optionally flint); wood alone or wood plus flint cannot bootstrap a fire. An on-tile pile allows consolidation without ignition; if a pile is perceived within 2 tiles the resident walks onto it, so fuel is consolidated instead of scattered |
+| `use@pile` (strike) | predicted consumption of the striker | consumes no held item, matching execution on success and failure. The ordinary failure/replan policy, ignition probabilities and energy costs are unchanged |
 | `carry` (pick up) | only from a pile on the resident's own tile, never as a first step after something else | additionally a **haul** step to a perceived pile ≤2 tiles away when its material has a visible use or a remembered store has room |
 | `deposit` | to the nearest known store | to the nearest known store **not remembered as full** (memory may be stale; a full store still fails honestly) |
 | acquisition drive (`0.12 × items` in the step reward) | every produced unit | only units with a perceived use: materials named by the resident's own demand at decision time, food while not sated or carrying ≤3, fuel under fire demand, a tool not already held |

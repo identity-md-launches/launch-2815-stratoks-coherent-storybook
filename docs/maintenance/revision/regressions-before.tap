@@ -1,0 +1,40 @@
+✖ stone pile strikes retain inventory in planner predictions and failed/successful execution (25.260483ms)
+✖ flint pile strikes retain inventory in planner predictions and failed/successful execution (6.443531ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 145.426796
+
+✖ failing tests:
+
+test at test/scratch/revision/baseline/tests/chains.test.js:165:3
+✖ stone pile strikes retain inventory in planner predictions and failed/successful execution (25.260483ms)
+  AssertionError [ERR_ASSERTION]: three strikes remain feasible with the same held striker
+      at TestContext.<anonymous> (file:///root/.identitymd/work/a5805d0d-83ac-40ab-814c-dc44f7ef6b17/348f6b80-9f06-42d1-adac-b9d3e15ecbcb/test/scratch/revision/baseline/tests/chains.test.js:172:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at test/scratch/revision/baseline/tests/chains.test.js:165:3
+✖ flint pile strikes retain inventory in planner predictions and failed/successful execution (6.443531ms)
+  AssertionError [ERR_ASSERTION]: three strikes remain feasible with the same held striker
+      at TestContext.<anonymous> (file:///root/.identitymd/work/a5805d0d-83ac-40ab-814c-dc44f7ef6b17/348f6b80-9f06-42d1-adac-b9d3e15ecbcb/test/scratch/revision/baseline/tests/chains.test.js:172:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

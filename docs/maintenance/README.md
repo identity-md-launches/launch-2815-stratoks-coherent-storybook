@@ -1,5 +1,7 @@
 # Fuel, wallet timing and evidence maintenance
 
+> Historical first-round report. The [revision report](revision/VALIDATION.md) supersedes fuel behavior and long-run bounds below; wallet test timing remains as reported here.
+
 This component continues `04f473dd3b1b6101efc37fb85418baa72605ee59`. It changes tests, engine comments and documentation only. Production simulation and authentication logic, schema, dependencies, saved worlds, preview bytes and deployment settings are unchanged. No new gameplay or deployment is included.
 
 ## Fuel diagnosis

@@ -1,5 +1,7 @@
 # Local validation — fuel and wallet maintenance
 
+> Historical first-round report. The [revision report](revision/VALIDATION.md) supersedes fuel behavior and long-run bounds below; wallet test timing remains as reported here.
+
 Base: `04f473dd3b1b6101efc37fb85418baa72605ee59`. The deliverable has no runtime logic or dependency changes. [Diagnosis, scope and README errata](README.md) distinguish this maintenance work from historical art/browser delivery.
 
 | Check | Result | Raw evidence |

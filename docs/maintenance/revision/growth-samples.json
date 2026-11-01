@@ -1,0 +1,678 @@
+{
+  "source": "backend-final.tap",
+  "initialResidents": 40,
+  "intervalTicks": 250,
+  "assertedPileLimit": {
+    "exclusiveLimit": 80,
+    "throughTick": 3500
+  },
+  "accountingThroughTick": 9000,
+  "runs": [
+    {
+      "seed": 3,
+      "peakPiles": 66,
+      "samples": [
+        {
+          "tick": 250,
+          "piles": 3,
+          "units": 3,
+          "residents": 40
+        },
+        {
+          "tick": 500,
+          "piles": 1,
+          "units": 2,
+          "residents": 40
+        },
+        {
+          "tick": 750,
+          "piles": 8,
+          "units": 9,
+          "residents": 40
+        },
+        {
+          "tick": 1000,
+          "piles": 6,
+          "units": 13,
+          "residents": 40
+        },
+        {
+          "tick": 1250,
+          "piles": 8,
+          "units": 17,
+          "residents": 41
+        },
+        {
+          "tick": 1500,
+          "piles": 13,
+          "units": 25,
+          "residents": 41
+        },
+        {
+          "tick": 1750,
+          "piles": 15,
+          "units": 37,
+          "residents": 44
+        },
+        {
+          "tick": 2000,
+          "piles": 24,
+          "units": 44,
+          "residents": 45
+        },
+        {
+          "tick": 2250,
+          "piles": 24,
+          "units": 45,
+          "residents": 47
+        },
+        {
+          "tick": 2500,
+          "piles": 24,
+          "units": 44,
+          "residents": 50
+        },
+        {
+          "tick": 2750,
+          "piles": 24,
+          "units": 42,
+          "residents": 52
+        },
+        {
+          "tick": 3000,
+          "piles": 28,
+          "units": 54,
+          "residents": 53
+        },
+        {
+          "tick": 3250,
+          "piles": 28,
+          "units": 53,
+          "residents": 57
+        },
+        {
+          "tick": 3500,
+          "piles": 31,
+          "units": 59,
+          "residents": 60
+        },
+        {
+          "tick": 3750,
+          "piles": 33,
+          "units": 63,
+          "residents": 62
+        },
+        {
+          "tick": 4000,
+          "piles": 35,
+          "units": 64,
+          "residents": 64
+        },
+        {
+          "tick": 4250,
+          "piles": 31,
+          "units": 53,
+          "residents": 68
+        },
+        {
+          "tick": 4500,
+          "piles": 30,
+          "units": 59,
+          "residents": 70
+        },
+        {
+          "tick": 4750,
+          "piles": 34,
+          "units": 60,
+          "residents": 73
+        },
+        {
+          "tick": 5000,
+          "piles": 31,
+          "units": 60,
+          "residents": 79
+        },
+        {
+          "tick": 5250,
+          "piles": 34,
+          "units": 63,
+          "residents": 78
+        },
+        {
+          "tick": 5500,
+          "piles": 37,
+          "units": 66,
+          "residents": 80
+        },
+        {
+          "tick": 5750,
+          "piles": 34,
+          "units": 63,
+          "residents": 82
+        },
+        {
+          "tick": 6000,
+          "piles": 36,
+          "units": 69,
+          "residents": 83
+        },
+        {
+          "tick": 6250,
+          "piles": 40,
+          "units": 72,
+          "residents": 85
+        },
+        {
+          "tick": 6500,
+          "piles": 44,
+          "units": 79,
+          "residents": 91
+        },
+        {
+          "tick": 6750,
+          "piles": 48,
+          "units": 83,
+          "residents": 93
+        },
+        {
+          "tick": 7000,
+          "piles": 47,
+          "units": 78,
+          "residents": 98
+        },
+        {
+          "tick": 7250,
+          "piles": 44,
+          "units": 83,
+          "residents": 100
+        },
+        {
+          "tick": 7500,
+          "piles": 44,
+          "units": 89,
+          "residents": 106
+        },
+        {
+          "tick": 7750,
+          "piles": 48,
+          "units": 98,
+          "residents": 106
+        },
+        {
+          "tick": 8000,
+          "piles": 47,
+          "units": 109,
+          "residents": 107
+        },
+        {
+          "tick": 8250,
+          "piles": 56,
+          "units": 123,
+          "residents": 117
+        },
+        {
+          "tick": 8500,
+          "piles": 54,
+          "units": 118,
+          "residents": 120
+        },
+        {
+          "tick": 8750,
+          "piles": 60,
+          "units": 130,
+          "residents": 125
+        },
+        {
+          "tick": 9000,
+          "piles": 66,
+          "units": 157,
+          "residents": 130
+        }
+      ]
+    },
+    {
+      "seed": 7,
+      "peakPiles": 113,
+      "samples": [
+        {
+          "tick": 250,
+          "piles": 6,
+          "units": 8,
+          "residents": 40
+        },
+        {
+          "tick": 500,
+          "piles": 15,
+          "units": 21,
+          "residents": 41
+        },
+        {
+          "tick": 750,
+          "piles": 18,
+          "units": 46,
+          "residents": 38
+        },
+        {
+          "tick": 1000,
+          "piles": 18,
+          "units": 48,
+          "residents": 40
+        },
+        {
+          "tick": 1250,
+          "piles": 18,
+          "units": 47,
+          "residents": 40
+        },
+        {
+          "tick": 1500,
+          "piles": 24,
+          "units": 56,
+          "residents": 43
+        },
+        {
+          "tick": 1750,
+          "piles": 27,
+          "units": 62,
+          "residents": 44
+        },
+        {
+          "tick": 2000,
+          "piles": 25,
+          "units": 49,
+          "residents": 46
+        },
+        {
+          "tick": 2250,
+          "piles": 23,
+          "units": 51,
+          "residents": 45
+        },
+        {
+          "tick": 2500,
+          "piles": 26,
+          "units": 55,
+          "residents": 46
+        },
+        {
+          "tick": 2750,
+          "piles": 28,
+          "units": 61,
+          "residents": 48
+        },
+        {
+          "tick": 3000,
+          "piles": 38,
+          "units": 78,
+          "residents": 49
+        },
+        {
+          "tick": 3250,
+          "piles": 39,
+          "units": 78,
+          "residents": 55
+        },
+        {
+          "tick": 3500,
+          "piles": 38,
+          "units": 77,
+          "residents": 56
+        },
+        {
+          "tick": 3750,
+          "piles": 42,
+          "units": 81,
+          "residents": 57
+        },
+        {
+          "tick": 4000,
+          "piles": 42,
+          "units": 83,
+          "residents": 60
+        },
+        {
+          "tick": 4250,
+          "piles": 46,
+          "units": 91,
+          "residents": 63
+        },
+        {
+          "tick": 4500,
+          "piles": 51,
+          "units": 93,
+          "residents": 64
+        },
+        {
+          "tick": 4750,
+          "piles": 52,
+          "units": 96,
+          "residents": 65
+        },
+        {
+          "tick": 5000,
+          "piles": 58,
+          "units": 98,
+          "residents": 67
+        },
+        {
+          "tick": 5250,
+          "piles": 59,
+          "units": 105,
+          "residents": 67
+        },
+        {
+          "tick": 5500,
+          "piles": 68,
+          "units": 117,
+          "residents": 67
+        },
+        {
+          "tick": 5750,
+          "piles": 67,
+          "units": 118,
+          "residents": 70
+        },
+        {
+          "tick": 6000,
+          "piles": 70,
+          "units": 123,
+          "residents": 72
+        },
+        {
+          "tick": 6250,
+          "piles": 72,
+          "units": 127,
+          "residents": 76
+        },
+        {
+          "tick": 6500,
+          "piles": 77,
+          "units": 136,
+          "residents": 80
+        },
+        {
+          "tick": 6750,
+          "piles": 78,
+          "units": 137,
+          "residents": 86
+        },
+        {
+          "tick": 7000,
+          "piles": 82,
+          "units": 160,
+          "residents": 90
+        },
+        {
+          "tick": 7250,
+          "piles": 85,
+          "units": 172,
+          "residents": 93
+        },
+        {
+          "tick": 7500,
+          "piles": 89,
+          "units": 171,
+          "residents": 94
+        },
+        {
+          "tick": 7750,
+          "piles": 96,
+          "units": 184,
+          "residents": 99
+        },
+        {
+          "tick": 8000,
+          "piles": 99,
+          "units": 201,
+          "residents": 102
+        },
+        {
+          "tick": 8250,
+          "piles": 103,
+          "units": 214,
+          "residents": 102
+        },
+        {
+          "tick": 8500,
+          "piles": 107,
+          "units": 220,
+          "residents": 108
+        },
+        {
+          "tick": 8750,
+          "piles": 109,
+          "units": 237,
+          "residents": 114
+        },
+        {
+          "tick": 9000,
+          "piles": 113,
+          "units": 248,
+          "residents": 115
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "peakPiles": 71,
+      "samples": [
+        {
+          "tick": 250,
+          "piles": 5,
+          "units": 6,
+          "residents": 40
+        },
+        {
+          "tick": 500,
+          "piles": 11,
+          "units": 12,
+          "residents": 40
+        },
+        {
+          "tick": 750,
+          "piles": 11,
+          "units": 11,
+          "residents": 41
+        },
+        {
+          "tick": 1000,
+          "piles": 12,
+          "units": 17,
+          "residents": 42
+        },
+        {
+          "tick": 1250,
+          "piles": 15,
+          "units": 18,
+          "residents": 43
+        },
+        {
+          "tick": 1500,
+          "piles": 13,
+          "units": 17,
+          "residents": 46
+        },
+        {
+          "tick": 1750,
+          "piles": 15,
+          "units": 21,
+          "residents": 47
+        },
+        {
+          "tick": 2000,
+          "piles": 15,
+          "units": 22,
+          "residents": 46
+        },
+        {
+          "tick": 2250,
+          "piles": 24,
+          "units": 36,
+          "residents": 49
+        },
+        {
+          "tick": 2500,
+          "piles": 25,
+          "units": 39,
+          "residents": 51
+        },
+        {
+          "tick": 2750,
+          "piles": 26,
+          "units": 50,
+          "residents": 51
+        },
+        {
+          "tick": 3000,
+          "piles": 26,
+          "units": 49,
+          "residents": 55
+        },
+        {
+          "tick": 3250,
+          "piles": 30,
+          "units": 54,
+          "residents": 56
+        },
+        {
+          "tick": 3500,
+          "piles": 37,
+          "units": 65,
+          "residents": 60
+        },
+        {
+          "tick": 3750,
+          "piles": 39,
+          "units": 77,
+          "residents": 63
+        },
+        {
+          "tick": 4000,
+          "piles": 37,
+          "units": 76,
+          "residents": 63
+        },
+        {
+          "tick": 4250,
+          "piles": 37,
+          "units": 86,
+          "residents": 64
+        },
+        {
+          "tick": 4500,
+          "piles": 36,
+          "units": 76,
+          "residents": 66
+        },
+        {
+          "tick": 4750,
+          "piles": 39,
+          "units": 90,
+          "residents": 72
+        },
+        {
+          "tick": 5000,
+          "piles": 38,
+          "units": 90,
+          "residents": 75
+        },
+        {
+          "tick": 5250,
+          "piles": 38,
+          "units": 84,
+          "residents": 78
+        },
+        {
+          "tick": 5500,
+          "piles": 36,
+          "units": 74,
+          "residents": 82
+        },
+        {
+          "tick": 5750,
+          "piles": 43,
+          "units": 91,
+          "residents": 86
+        },
+        {
+          "tick": 6000,
+          "piles": 45,
+          "units": 101,
+          "residents": 88
+        },
+        {
+          "tick": 6250,
+          "piles": 50,
+          "units": 125,
+          "residents": 93
+        },
+        {
+          "tick": 6500,
+          "piles": 51,
+          "units": 122,
+          "residents": 96
+        },
+        {
+          "tick": 6750,
+          "piles": 53,
+          "units": 132,
+          "residents": 100
+        },
+        {
+          "tick": 7000,
+          "piles": 55,
+          "units": 139,
+          "residents": 102
+        },
+        {
+          "tick": 7250,
+          "piles": 50,
+          "units": 123,
+          "residents": 106
+        },
+        {
+          "tick": 7500,
+          "piles": 52,
+          "units": 110,
+          "residents": 108
+        },
+        {
+          "tick": 7750,
+          "piles": 50,
+          "units": 108,
+          "residents": 113
+        },
+        {
+          "tick": 8000,
+          "piles": 51,
+          "units": 110,
+          "residents": 115
+        },
+        {
+          "tick": 8250,
+          "piles": 56,
+          "units": 124,
+          "residents": 118
+        },
+        {
+          "tick": 8500,
+          "piles": 63,
+          "units": 145,
+          "residents": 121
+        },
+        {
+          "tick": 8750,
+          "piles": 64,
+          "units": 155,
+          "residents": 127
+        },
+        {
+          "tick": 9000,
+          "piles": 71,
+          "units": 169,
+          "residents": 129
+        }
+      ]
+    }
+  ]
+}
