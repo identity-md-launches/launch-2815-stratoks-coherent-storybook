@@ -26,7 +26,7 @@ export function loadArt(): Promise<Art> {
 }
 export function drawSprite(
   ctx: CanvasRenderingContext2D,
-  art: Art,
+  art: Record<string, CanvasImageSource>,
   name: string,
   x: number,
   y: number,

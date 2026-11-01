@@ -58,39 +58,142 @@ function clipTo(g: Ctx, pts: readonly (readonly number[])[], paint: () => void) 
 export function castShadow(g: Ctx, x: number, y: number, rx: number, ry = rx * 0.42) {
   g.fillStyle = PALETTE.shadow; g.beginPath(); g.ellipse(x + rx * 0.16, y + ry * 0.12, rx, ry, 0, 0, 7); g.fill();
 }
-function blob(g: Ctx, x: number, y: number, r: number, color: string) { g.fillStyle = color; g.beginPath(); g.ellipse(x, y, r, r * 0.86, 0, 0, 7); g.fill(); }
 
 // ---------- vegetation ----------
-/** Clumped storybook crown: outline pass, shade, body, upper-left highlight. */
-function crown(g: Ctx, cx: number, cy: number, rx: number, ry: number, ramp: Ramp, rand: () => number, n = 9, snow = false) {
-  const blobs = Array.from({ length: n }, (_, i) => {
-    const a = (i / n) * Math.PI * 2 + rand() * 0.5, d = i === 0 ? 0 : 0.45 + rand() * 0.35;
-    return { x: cx + Math.cos(a) * rx * d, y: cy + Math.sin(a) * ry * d, r: Math.min(rx, ry) * (0.42 + rand() * 0.18) };
-  }).sort((a, b) => a.y - b.y);
-  for (const b of blobs) blob(g, b.x, b.y, b.r + 3, PALETTE.outline);
-  for (const b of blobs) blob(g, b.x, b.y, b.r, ramp[0]);
-  for (const b of blobs) blob(g, b.x - b.r * 0.14, b.y - b.r * 0.16, b.r * 0.82, ramp[1]);
-  for (const b of blobs) blob(g, b.x - b.r * 0.34, b.y - b.r * 0.38, b.r * 0.38, ramp[2]);
-  g.fillStyle = ramp[0];
-  for (let k = 0; k < 14; k++) { const b = blobs[k % n]; g.beginPath(); g.arc(b.x + (rand() - 0.2) * b.r, b.y + (rand() - 0.1) * b.r * 0.8, 1.8, 0, 7); g.fill(); }
-  if (snow) for (const b of blobs.filter((_, i) => i % 2 === 0)) {
-    g.fillStyle = PALETTE.snow[1]; g.beginPath(); g.ellipse(b.x - b.r * 0.15, b.y - b.r * 0.62, b.r * 0.62, b.r * 0.26, -0.15, 0, 7); g.fill();
+// Foliage follows the references studied in ART-DIRECTION.md: masses of many
+// small overlapping leaves (the same 6–9 px detail frequency as thatch strokes
+// and stone courses), one continuous light field from the upper left across
+// the whole crown, ambient occlusion underneath, and a soft dark-umber edge
+// instead of a hard cut-out outline. Nothing here is a flat circle.
+const hex = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+/** Colour on a 3-stop ramp: t 0 = shade, 0.5 = body, 1 = light; beyond 1 warms toward sunlit. */
+function tone(ramp: Ramp, t: number, alpha = 1) {
+  const u = Math.max(0, Math.min(1.25, t)), [a, b] = u < 0.5 ? [ramp[0], ramp[1]] : [ramp[1], ramp[2]];
+  const f = u < 0.5 ? u / 0.5 : Math.min(1, (u - 0.5) / 0.5), A = hex(a), B = hex(b);
+  let rgb = A.map((v, i) => v + (B[i] - v) * f);
+  if (u > 1) rgb = rgb.map((v, i) => v + ([255, 236, 170][i] - v) * (u - 1) * 0.9); // warm sun tips
+  return `rgba(${rgb.map(Math.round).join(",")},${alpha})`;
+}
+const LIGHT = [-0.62, -0.78] as const; // one light, upper left
+type Clump = { x: number; y: number; r: number };
+/** Irregular leafy outline of one clump: lobed, with leaf-tip scallops. */
+function clumpPath(p: Path2D, c: Clump, rand: () => number, grow = 0) {
+  const n = 22, wob = Array.from({ length: 5 }, () => rand() * 0.16);
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * Math.PI * 2, lobe = 1 + wob[i % 5] - 0.08 + (i % 2 ? 0.04 : -0.02);
+    const x = c.x + Math.cos(a) * (c.r * lobe + grow), y = c.y + Math.sin(a) * (c.r * 0.9 * lobe + grow);
+    if (i === 0) p.moveTo(x, y); else p.lineTo(x, y);
   }
-  return blobs;
+  p.closePath();
+}
+function leaf(g: Ctx, x: number, y: number, len: number, ang: number, color: string) {
+  const w = len * 0.42, cs = Math.cos(ang), sn = Math.sin(ang), ex = x + cs * len, ey = y + sn * len;
+  g.fillStyle = color; g.beginPath(); g.moveTo(x, y);
+  g.quadraticCurveTo(x + cs * len * 0.5 - sn * w, y + sn * len * 0.5 + cs * w, ex, ey);
+  g.quadraticCurveTo(x + cs * len * 0.5 + sn * w, y + sn * len * 0.5 - cs * w, x, y); g.fill();
+}
+/**
+ * One foliage mass (broadleaf crown, shrub, acacia canopy). Clumps overlap
+ * back to front; each takes its brightness from the single light field of the
+ * whole mass, then is textured by leaves lit by the same direction.
+ */
+function leafMass(g: Ctx, clumps: Clump[], ramp: Ramp, rand: () => number, snow = false, leafLen = 8) {
+  clumps.sort((a, b) => a.y - b.y);
+  const x0 = Math.min(...clumps.map((c) => c.x - c.r)), x1 = Math.max(...clumps.map((c) => c.x + c.r));
+  const y0 = Math.min(...clumps.map((c) => c.y - c.r)), y1 = Math.max(...clumps.map((c) => c.y + c.r));
+  const lx = x0 + (x1 - x0) * 0.26, ly = y0 + (y1 - y0) * 0.18, span = Math.hypot(x1 - x0, y1 - y0) * 0.85;
+  const field = (x: number, y: number) => 0.92 - Math.hypot(x - lx, y - ly) / span; // ~0.9 lit … 0 shaded
+  const paths = clumps.map((c) => { const p = new Path2D(); clumpPath(p, c, rng(Math.round(c.x * 31 + c.y * 17))); return p; });
+  const sil = new Path2D(); paths.forEach((p) => sil.addPath(p));
+  // Soft integrated edge: a blurred umber rim, not a hard 3 px cut-out stroke.
+  g.save(); g.shadowColor = "rgba(58,42,30,.55)"; g.shadowBlur = 5; g.shadowOffsetX = 1.5; g.shadowOffsetY = 2;
+  const rim = new Path2D(); clumps.forEach((c) => clumpPath(rim, c, rng(Math.round(c.x * 31 + c.y * 17)), 1.6));
+  g.fillStyle = "rgba(46,40,26,.82)"; g.fill(rim); g.restore();
+  clumps.forEach((c, i) => {
+    const t = field(c.x, c.y);
+    // Clump volume: lit cap toward the light, occluded crescent away from it.
+    const gr = g.createRadialGradient(c.x + LIGHT[0] * c.r * 0.45, c.y + LIGHT[1] * c.r * 0.45, c.r * 0.08, c.x, c.y, c.r * 1.12);
+    gr.addColorStop(0, tone(ramp, t + 0.3)); gr.addColorStop(0.5, tone(ramp, t - 0.02)); gr.addColorStop(1, tone(ramp, t - 0.48));
+    g.fillStyle = gr; g.fill(paths[i]);
+    g.save(); g.clip(paths[i]);
+    // Leaves at the same detail frequency as thatch and stone courses.
+    const n = Math.round((c.r * c.r) / (leafLen * leafLen * 0.34));
+    for (let k = 0; k < n; k++) {
+      const a = rand() * Math.PI * 2, d = Math.sqrt(rand()) * c.r, x = c.x + Math.cos(a) * d, y = c.y + Math.sin(a) * d * 0.9;
+      const lit = (Math.cos(a) * LIGHT[0] + Math.sin(a) * LIGHT[1]) * (d / c.r) * 0.3; // facing the light
+      leaf(g, x, y, leafLen * (0.75 + rand() * 0.5), Math.PI * 0.5 + (rand() - 0.5) * 2.2, tone(ramp, field(x, y) + lit + (rand() - 0.5) * 0.3, 0.9));
+    }
+    g.restore();
+    // Leaf tips breaking the silhouette on the lit side keep the edge irregular.
+    for (let k = 0; k < Math.round(c.r / 3); k++) {
+      const a = Math.PI * (0.85 + rand() * 1.1), x = c.x + Math.cos(a) * c.r * 0.96, y = c.y + Math.sin(a) * c.r * 0.88;
+      leaf(g, x, y, leafLen * 0.9, a + (rand() - 0.5) * 0.8, tone(ramp, field(x, y) + 0.35, 0.95));
+    }
+    if (snow) {
+      g.save(); g.clip(paths[i]); const sg = g.createLinearGradient(c.x - c.r, c.y - c.r, c.x + c.r, c.y);
+      sg.addColorStop(0, PALETTE.snow[2]); sg.addColorStop(1, PALETTE.snow[0]); g.fillStyle = sg;
+      g.beginPath(); g.moveTo(c.x - c.r * 1.1, c.y - c.r * 0.25);
+      for (let k = 0; k <= 6; k++) g.lineTo(c.x - c.r + (k / 6) * c.r * 2, c.y - c.r * 0.38 + (k % 2 ? 5 : -2) + rand() * 4);
+      g.lineTo(c.x + c.r, c.y - c.r * 1.2); g.lineTo(c.x - c.r, c.y - c.r * 1.2); g.closePath(); g.fill(); g.restore();
+    }
+  });
+  // Ambient occlusion under the mass, continuous across clumps.
+  g.save(); g.clip(sil); const ao = g.createLinearGradient(0, y0 + (y1 - y0) * 0.45, 0, y1);
+  ao.addColorStop(0, "rgba(24,38,22,0)"); ao.addColorStop(1, "rgba(24,38,22,.42)"); g.fillStyle = ao; g.fillRect(x0 - 10, y0, x1 - x0 + 20, y1 - y0 + 10); g.restore();
+  return clumps;
+}
+/** Broadleaf / shrub crown: overlapping clumps arranged in a rounded mass. */
+function crown(g: Ctx, cx: number, cy: number, rx: number, ry: number, ramp: Ramp, rand: () => number, n = 9, snow = false, leafLen = 8) {
+  const clumps: Clump[] = Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 + rand() * 0.6, d = i === 0 ? 0 : 0.42 + rand() * 0.38;
+    return { x: cx + Math.cos(a) * rx * d, y: cy + Math.sin(a) * ry * d, r: Math.min(rx, ry) * (0.4 + rand() * 0.2) };
+  });
+  return leafMass(g, clumps, ramp, rand, snow, leafLen);
 }
 function trunk(g: Ctx, x: number, y: number, top: number, w: number, lean = 0, ramp: Ramp = PALETTE.timber) {
   const pts = [[x - w * 1.5, y], [x - w, y - 8], [x + lean - w * 0.55, top], [x + lean + w * 0.55, top], [x + w, y - 8], [x + w * 1.5, y]];
   fill(g, pts, ramp[1]);
   clipTo(g, pts, () => { g.fillStyle = ramp[0]; g.fillRect(x + lean * 0.5, top, w * 2, y - top); g.fillStyle = ramp[2]; g.fillRect(x - w, top, w * 0.45, y - top); });
 }
+/**
+ * Conifer as drooping boughs (the reference firs): each tier is a skirt of
+ * irregular hanging needle sprays, lit from the upper left by the same field
+ * for the whole tree, shaded underneath by the tier above, soft-edged.
+ */
 function conifer(g: Ctx, x: number, base: number, w: number, h: number, tiers: number, ramp: Ramp, rand: () => number, snow: boolean) {
+  const top = base - h * 0.95, field = (px: number, py: number) => 0.95 - ((px - x) / (w * 2.2)) * 1.1 - ((py - top) / (base - top)) * 0.35;
+  const skirts: { p: Path2D; y: number; ww: number; hh: number }[] = [];
   for (let t = 0; t < tiers; t++) {
-    const y = base - (t * h) / tiers * 0.78, ww = w * (1 - (t / tiers) * 0.7), hh = (h / tiers) * 1.35;
-    const pts: number[][] = [[x, y - hh]];
-    for (let k = 0; k <= 8; k++) pts.push([x + ww - (2 * ww * k) / 8, y + (k % 2 ? 7 : 1) + rand() * 2]);
-    const grad = g.createLinearGradient(x - ww, 0, x + ww, 0); grad.addColorStop(0, ramp[2]); grad.addColorStop(0.42, ramp[1]); grad.addColorStop(1, ramp[0]);
-    fill(g, pts, grad);
-    if (snow) fill(g, [[x, y - hh + 2], [x - ww * 0.62, y - hh * 0.28], [x - ww * 0.2, y - hh * 0.38], [x + ww * 0.3, y - hh * 0.24]], PALETTE.snow[1], 0);
+    const y = base - ((t * h) / tiers) * 0.8, ww = w * (1 - (t / tiers) * 0.72) * (0.92 + rand() * 0.16), hh = (h / tiers) * 1.45;
+    const p = new Path2D(), tips = 9 + Math.round(ww / 10);
+    p.moveTo(x + (rand() - 0.5) * 4, y - hh);
+    p.quadraticCurveTo(x + ww * 0.55, y - hh * 0.55, x + ww, y - 2 + rand() * 4);
+    for (let k = 1; k <= tips; k++) { // hanging spray tips along the drooping lower edge
+      const u = 1 - (2 * k) / tips, px = x + ww * u, droop = (1 - u * u) * hh * 0.16;
+      p.lineTo(px + ww / tips, y + droop + 3 + rand() * 4);
+      p.lineTo(px + (rand() - 0.5) * 3, y + droop + 9 + rand() * 9 * (1 - Math.abs(u) * 0.5));
+    }
+    p.quadraticCurveTo(x - ww * 0.55, y - hh * 0.55, x + (rand() - 0.5) * 4, y - hh); p.closePath();
+    skirts.push({ p, y, ww, hh });
+  }
+  for (const s of skirts) {
+    g.save(); g.shadowColor = "rgba(46,40,26,.6)"; g.shadowBlur = 5; g.shadowOffsetX = 1.5; g.shadowOffsetY = 2;
+    g.lineWidth = 3.2; g.strokeStyle = "rgba(40,36,24,.78)"; g.lineJoin = "round"; g.stroke(s.p); g.restore();
+    const gr = g.createLinearGradient(x - s.ww, s.y - s.hh, x + s.ww, s.y + 10);
+    gr.addColorStop(0, tone(ramp, field(x - s.ww, s.y) + 0.15)); gr.addColorStop(0.45, tone(ramp, field(x, s.y))); gr.addColorStop(1, tone(ramp, field(x + s.ww, s.y) - 0.25));
+    g.fillStyle = gr; g.fill(s.p);
+    g.save(); g.clip(s.p);
+    // Needle sprays: short downward strokes fanned from the trunk line.
+    for (let k = 0; k < s.ww * 2.6; k++) {
+      const u = rand() * 2 - 1, v = Math.pow(rand(), 0.7), px = x + u * s.ww * v, py = s.y - s.hh * (1 - v) * 0.85 + rand() * 8;
+      g.strokeStyle = tone(ramp, field(px, py) + (rand() - 0.5) * 0.3 + (v > 0.8 ? 0.12 : 0), 0.9); g.lineWidth = 1.6 + rand();
+      g.beginPath(); g.moveTo(px, py); g.lineTo(px + u * 5 + (rand() - 0.5) * 3, py + 6 + rand() * 4); g.stroke();
+    }
+    // Occlusion at the bough's root and the dark underside of the skirt.
+    const ao = g.createLinearGradient(0, s.y - s.hh, 0, s.y + 16); ao.addColorStop(0, "rgba(16,30,22,.42)"); ao.addColorStop(0.3, "rgba(16,30,22,0)"); ao.addColorStop(0.78, "rgba(16,30,22,0)"); ao.addColorStop(1, "rgba(16,30,22,.4)");
+    g.fillStyle = ao; g.fillRect(x - s.ww - 4, s.y - s.hh, s.ww * 2 + 8, s.hh + 30);
+    if (snow) { g.fillStyle = PALETTE.snow[1]; g.beginPath(); g.moveTo(x - s.ww * 0.9, s.y - 2); g.quadraticCurveTo(x - s.ww * 0.35, s.y - s.hh * 0.55, x + 2, s.y - s.hh * 0.95); g.quadraticCurveTo(x + s.ww * 0.2, s.y - s.hh * 0.5, x + s.ww * 0.45, s.y - s.hh * 0.28); g.quadraticCurveTo(x - s.ww * 0.1, s.y - s.hh * 0.32, x - s.ww * 0.9, s.y - 2); g.fill(); g.fillStyle = PALETTE.snow[0]; g.fillRect(x + s.ww * 0.1, s.y - s.hh * 0.45, s.ww, 3); }
+    g.restore();
   }
 }
 function palm(g: Ctx, rand: () => number, lean: number) {
@@ -101,8 +204,12 @@ function palm(g: Ctx, rand: () => number, lean: number) {
   for (let n = 0; n < 8; n++) {
     const a = -Math.PI + (n / 7) * Math.PI + (rand() - 0.5) * 0.2, len = 62 + rand() * 18, ex = top[0] + Math.cos(a) * len, ey = top[1] + Math.sin(a) * len * 0.5 + 34;
     const mx = top[0] + Math.cos(a) * len * 0.5, my = top[1] + Math.sin(a) * len * 0.35 - 14;
-    g.beginPath(); g.moveTo(top[0], top[1]); g.quadraticCurveTo(mx, my - 10, ex, ey); g.quadraticCurveTo(mx, my + 8, top[0], top[1] + 5);
-    g.fillStyle = n < 4 ? PALETTE.olive[2] : PALETTE.olive[1]; g.fill(); g.strokeStyle = PALETTE.outline; g.lineWidth = 2.2; g.stroke();
+    const fr = new Path2D(); fr.moveTo(top[0], top[1]); fr.quadraticCurveTo(mx, my - 10, ex, ey); fr.quadraticCurveTo(mx, my + 8, top[0], top[1] + 5);
+    g.save(); g.shadowColor = "rgba(46,40,26,.55)"; g.shadowBlur = 4; g.shadowOffsetX = 1.5; g.shadowOffsetY = 2; g.strokeStyle = "rgba(40,36,24,.75)"; g.lineWidth = 2.6; g.stroke(fr); g.restore();
+    const lit = 0.75 - (n / 7) * 0.55, gr = g.createLinearGradient(top[0], top[1], ex, ey); gr.addColorStop(0, tone(PALETTE.olive, lit - 0.25)); gr.addColorStop(0.5, tone(PALETTE.olive, lit + 0.2)); gr.addColorStop(1, tone(PALETTE.olive, lit - 0.05));
+    g.fillStyle = gr; g.fill(fr); g.save(); g.clip(fr); g.strokeStyle = tone(PALETTE.olive, lit - 0.35, 0.8); g.lineWidth = 1.3;
+    for (let t = 0.15; t < 1; t += 0.08) { const qx = top[0] + (ex - top[0]) * t, qy = top[1] + (ey - top[1]) * t - Math.sin(t * Math.PI) * 14; g.beginPath(); g.moveTo(qx, qy); g.lineTo(qx + 4, qy + 9); g.stroke(); }
+    g.restore();
   }
   g.lineCap = "butt";
 }
@@ -139,9 +246,20 @@ function paintShrub(g: Ctx, form: ShrubForm, k: number) {
   const rand = rng(k * 313 + form.length * 17);
   castShadow(g, 160, 276, 44);
   if (form === "cactus") {
-    const arm = (x: number, y0: number, y1: number, w: number) => { const pts = [[x - w, y0], [x - w, y1 + w], [x, y1], [x + w, y1 + w], [x + w, y0]]; fill(g, pts, PALETTE.olive[1]); clipTo(g, pts, () => { g.fillStyle = PALETTE.olive[0]; g.fillRect(x + w * 0.3, y1, w, y0 - y1); g.fillStyle = PALETTE.olive[2]; g.fillRect(x - w * 0.7, y1, w * 0.35, y0 - y1); }); };
-    arm(160, 278, 150, 18); arm(124, 214, 176, 10); fill(g, [[124, 214], [124, 224], [150, 230], [150, 220]], PALETTE.olive[1], 2); arm(198, 236, 186, 10); fill(g, [[198, 236], [198, 244], [170, 248], [170, 240]], PALETTE.olive[1], 2);
-    if (k) for (let n = 0; n < 3; n++) blob(g, 152 + n * 9, 148 - (n % 2) * 4, 5, PALETTE.berry[2]);
+    // Ribbed, round-topped stems: continuous left-to-right light, rib texture, soft umber edge.
+    const arm = (x: number, y0: number, y1: number, w: number) => {
+      const pa = new Path2D(); pa.moveTo(x - w, y0); pa.lineTo(x - w, y1 + w); pa.arc(x, y1 + w, w, Math.PI, 0); pa.lineTo(x + w, y0); pa.closePath();
+      g.save(); g.shadowColor = "rgba(46,40,26,.55)"; g.shadowBlur = 4; g.shadowOffsetX = 1.5; g.shadowOffsetY = 2; g.strokeStyle = "rgba(40,36,24,.78)"; g.lineWidth = 2.6; g.stroke(pa); g.restore();
+      const gr = g.createLinearGradient(x - w, 0, x + w, 0); gr.addColorStop(0, tone(PALETTE.olive, 0.85)); gr.addColorStop(0.45, tone(PALETTE.olive, 0.5)); gr.addColorStop(1, tone(PALETTE.olive, 0.05));
+      g.fillStyle = gr; g.fill(pa); g.save(); g.clip(pa);
+      for (const u of [-0.55, 0, 0.55]) { g.strokeStyle = tone(PALETTE.olive, 0.3 - u * 0.3, 0.8); g.lineWidth = 1.4; g.beginPath(); g.moveTo(x + u * w, y0); g.lineTo(x + u * w * 0.8, y1 + 2); g.stroke(); }
+      g.fillStyle = tone(PALETTE.plaster, 1, 0.8); for (let yy = y1 + 6; yy < y0; yy += 9) for (const u of [-0.3, 0.3]) g.fillRect(x + u * w, yy + (u > 0 ? 4 : 0), 1.4, 1.4);
+      g.restore();
+    };
+    arm(124, 226, 176, 10); arm(198, 246, 186, 10);
+    for (const [x0, y0, x1] of [[124, 220, 150], [198, 240, 170]]) { g.strokeStyle = "rgba(40,36,24,.7)"; g.lineWidth = 12; g.lineCap = "round"; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y0 + 6); g.stroke(); g.strokeStyle = tone(PALETTE.olive, 0.45); g.lineWidth = 8; g.stroke(); g.lineCap = "butt"; }
+    arm(160, 278, 150, 18);
+    if (k) for (let n = 0; n < 3; n++) { const bx = 152 + n * 9, by = 150 - (n % 2) * 4, gr = g.createRadialGradient(bx - 2, by - 2, 0.5, bx, by, 5); gr.addColorStop(0, PALETTE.berry[2]); gr.addColorStop(1, PALETTE.berry[0]); g.fillStyle = gr; g.beginPath(); g.arc(bx, by, 5, 0, 7); g.fill(); }
     return;
   }
   if (form === "reeds") {
@@ -149,9 +267,10 @@ function paintShrub(g: Ctx, form: ShrubForm, k: number) {
     return;
   }
   const ramp = form === "frost" ? PALETTE.frost : form === "scrub" ? PALETTE.olive : PALETTE.leaf;
-  const blobs = crown(g, 160, 236, form === "scrub" ? 58 : 66, 40, ramp, rand, 8, form === "frost");
-  if (form === "berries") for (const b of blobs) for (let n = 0; n < 2; n++) { const x = b.x + (rand() - 0.5) * b.r, y = b.y + (rand() - 0.3) * b.r * 0.7; blob(g, x, y, 4.6, PALETTE.berry[1]); blob(g, x - 1.4, y - 1.6, 1.6, PALETTE.berry[2]); }
-  if (form === "frost") for (const b of blobs.filter((_, i) => i % 3 === 0)) blob(g, b.x, b.y, 3.6, PALETTE.berry[1]);
+  const blobs = crown(g, 160, 236, form === "scrub" ? 58 : 66, 40, ramp, rand, 8, form === "frost", 7);
+  const berry = (x: number, y: number, r: number) => { const gr = g.createRadialGradient(x - r * 0.4, y - r * 0.45, r * 0.1, x, y, r); gr.addColorStop(0, PALETTE.berry[2]); gr.addColorStop(0.6, PALETTE.berry[1]); gr.addColorStop(1, PALETTE.berry[0]); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
+  if (form === "berries") for (const b of blobs) for (let n = 0; n < 3; n++) { const x = b.x + (rand() - 0.5) * b.r * 1.2, y = b.y + (rand() - 0.2) * b.r * 0.7; berry(x, y, 3.6); berry(x + 4, y + 2, 3); }
+  if (form === "frost") for (const b of blobs.filter((_, i) => i % 3 === 0)) berry(b.x, b.y, 3.2);
 }
 function paintRocks(g: Ctx, region: Region, flint: boolean, k: number) {
   const rand = rng(k * 97 + (flint ? 5 : 1));
@@ -283,7 +402,7 @@ function footing(g: Ctx, p: ReturnType<typeof P>, a: number, b: number, mat: Ram
 }
 function post(g: Ctx, p: ReturnType<typeof P>, x: number, y: number, z0: number, z1: number) { const s = p(x, y, z0), e = p(x, y, z1); g.strokeStyle = PALETTE.outline; g.lineWidth = 8; g.beginPath(); g.moveTo(s[0], s[1]); g.lineTo(e[0], e[1]); g.stroke(); g.strokeStyle = PALETTE.timber[2]; g.lineWidth = 4.5; g.stroke(); }
 function beam(g: Ctx, p: ReturnType<typeof P>, a: number[], b: number[]) { const s = p(a[0], a[1], a[2]), e = p(b[0], b[1], b[2]); g.strokeStyle = PALETTE.outline; g.lineWidth = 7; g.beginPath(); g.moveTo(s[0], s[1]); g.lineTo(e[0], e[1]); g.stroke(); g.strokeStyle = PALETTE.timber[1]; g.lineWidth = 3.5; g.stroke(); }
-function paintShelter(g: Ctx, region: Region, variant: number, stage: Stage) {
+function paintShelter(g: Ctx, region: Region, variant: number, stage: Stage, lit = false) {
   const rand = rng(variant * 977 + region.length * 131 + stage.length), snow = region === "cold";
   const p = P(160, 248), a = 56, b = 40;
   castShadow(g, 168, 262, 112, 46);
@@ -308,7 +427,7 @@ function paintShelter(g: Ctx, region: Region, variant: number, stage: Stage) {
     if (variant === 0) { // half-timbered cottage, thatch gable, chimney
       const box = { p, a, b, h: 58 }; walls(g, box, "plaster", rand);
       opening(g, box, "right", 0.5, 0.17, 0, 40, PALETTE.door); opening(g, box, "left", 0.3, 0.09, 24, 42, PALETTE.window, true); opening(g, box, "left", 0.72, 0.09, 24, 42, PALETTE.window, true);
-      const r = gable(g, box, 54, 10, "thatch", PALETTE.timber, false, rand, holes); chimney(g, r.ridge0[0] + 40, r.ridge0[1] + 30, stage === "complete");
+      const r = gable(g, box, 54, 10, "thatch", PALETTE.timber, false, rand, holes); chimney(g, r.ridge0[0] + 40, r.ridge0[1] + 30, lit && stage === "complete");
     } else { // wattle roundhouse with domed thatch cone
       const cx = 160, cy = 254; roundWall(g, cx, cy, 52, 46, PALETTE.plaster, "wattle");
       fill(g, [[cx + 8, cy + 36], [cx + 34, cy + 30], [cx + 34, cy - 6], [cx + 8, cy]], PALETTE.door, 2);
@@ -334,7 +453,7 @@ function paintShelter(g: Ctx, region: Region, variant: number, stage: Stage) {
     if (variant === 0) { // stone cottage, steep slate roof under snow, chimney
       const box = { p, a, b, h: 52 }; walls(g, box, "stone", rand);
       opening(g, box, "right", 0.5, 0.16, 0, 36, PALETTE.door); opening(g, box, "left", 0.5, 0.1, 20, 38, PALETTE.window, true);
-      const r = gable(g, box, 74, 10, "slate", PALETTE.timber, snow, rand, holes); chimney(g, r.ridge1[0] - 30, r.ridge1[1] + 18, stage === "complete");
+      const r = gable(g, box, 74, 10, "slate", PALETTE.timber, snow, rand, holes); chimney(g, r.ridge1[0] - 30, r.ridge1[1] + 18, lit && stage === "complete");
     } else { // low timber longhouse with turf roof
       const box = { p, a: 70, b: 34, h: 36 }; walls(g, box, "timber", rand);
       opening(g, box, "right", 0.5, 0.2, 0, 30, PALETTE.door); opening(g, box, "left", 0.5, 0.07, 14, 28, PALETTE.window);
@@ -349,7 +468,7 @@ function paintShelter(g: Ctx, region: Region, variant: number, stage: Stage) {
     } else { // whitewashed cottage with clay-tile roof
       const box = { p, a, b, h: 54 }; walls(g, box, "plaster", rand);
       opening(g, box, "right", 0.5, 0.16, 0, 38, PALETTE.door); opening(g, box, "left", 0.5, 0.1, 22, 40, PALETTE.window, true);
-      const r = gable(g, box, 46, 10, "clay", PALETTE.plaster, false, rand, holes); chimney(g, r.ridge0[0] + 30, r.ridge0[1] + 24, stage === "complete");
+      const r = gable(g, box, 46, 10, "clay", PALETTE.plaster, false, rand, holes); chimney(g, r.ridge0[0] + 30, r.ridge0[1] + 24, lit && stage === "complete");
     }
   }
 }
@@ -410,11 +529,27 @@ export function cellFor(key: string) {
     else if (family === "shrub") paintShrub(g, a as ShrubForm, Number(b));
     else if (family === "rock") paintRocks(g, region, a === "flint", Number(b));
     else if (family === "log") paintLog(g, region, Number(a));
-    else if (family === "shelter") paintShelter(g, region, Number(a), b as Stage);
+    else if (family === "shelter") paintShelter(g, region, Number(a), b as Stage, c2 === "lit");
     else if (family === "store") paintStore(g, region, a as StoreForm, Number(b), c2 === "ruined");
     else if (family === "hearth") paintHearth(g, region, Number(a));
     else if (family === "garden") paintGarden(g, Number(a), b === "dry");
   });
+}
+/**
+ * Resident edge treatment matched to the foliage: the same soft, blurred
+ * dark-umber rim falling to the lower right. Baked once per sprite rect into
+ * a copy of the character sheet (clipped to each rect, so neighbours never
+ * bleed). The species art itself is untouched.
+ */
+export function softEdgeSheet(img: CanvasImageSource & { width: number; height: number }, rects: readonly (readonly number[])[]) {
+  const c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
+  const g = c.getContext("2d")!;
+  for (const [x, y, w, h] of rects) {
+    g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip();
+    g.shadowColor = "rgba(58,42,30,.5)"; g.shadowBlur = 6; g.shadowOffsetX = 2; g.shadowOffsetY = 3;
+    g.drawImage(img, x, y, w, h, x, y, w, h); g.restore();
+  }
+  return c;
 }
 export function drawCell(ctx: Ctx, key: string, x: number, y: number, width: number, alpha = 1) {
   const c = cellFor(key), ratio = width / CELL;
@@ -433,29 +568,52 @@ export function nodeKey(region: Region, kind: string, id: string | number, units
   if (kind === "deadfall" || kind === "driftwood") return units > 0 ? { key: `log:${region}:${k % 2}`, width: 2.3 } : null;
   return null;
 }
-export function shelterKey(region: Region, id: number | undefined, stage: Stage) {
-  return `shelter:${region}:${shelterVariant(id)}:${stage}`;
+/** Variants with a chimney: forest cottage, cold stone cottage, coast whitewashed cottage. */
+export const hasChimney = (region: Region, variant: number) => (variant === 0 && (region === "forest" || region === "cold")) || (variant === 1 && region === "coast");
+/**
+ * `lit` must come from an authoritative burning fire at or beside the shelter
+ * (the engine's own warmth radius, Chebyshev ≤ 1). Smoke is painted only for
+ * a complete, chimneyed shelter with that fire; a roof is not a hearth.
+ */
+export function shelterKey(region: Region, id: number | undefined, stage: Stage, lit = false) {
+  const v = shelterVariant(id);
+  return `shelter:${region}:${v}:${stage}${lit && stage === "complete" && hasChimney(region, v) ? ":lit" : ""}`;
+}
+/** Whether a real burning fire sits on or beside tile (x, y). */
+export function fireBeside(fires: readonly (readonly number[])[], fuel: readonly { id: number; fuel: number }[] | undefined, x: number, y: number) {
+  return fires.some(([id, fx, fy]) => Math.max(Math.abs(fx - x), Math.abs(fy - y)) <= 1 && (fuel?.find((q) => q.id === id)?.fuel ?? 1) > 0);
 }
 export const storeKey = (region: Region, items: Record<string, number>, size: number, ruined?: boolean) => `store:${region}:${storeForm(items)}:${Math.max(1, Math.min(4, size))}:${ruined ? "ruined" : "ok"}`;
 export const hearthKey = (region: Region, id: number) => `hearth:${region}:${stableHash(id) % 2}`;
 export const gardenKey = (id: number, dry: boolean) => `garden:forest:${stableHash(id) % 2}:${dry ? "dry" : "wet"}`;
-/** Every cell the sample can produce, for the contact sheet. */
+/**
+ * Every reachable cell key, for the contact sheet. Keys are produced by the
+ * same key functions the world renderer calls (nodeKey, shelterKey, storeKey,
+ * hearthKey, gardenKey) over their full input domains, so the sheet cannot
+ * drift from what the world can draw. Ids sweep enough values to hit every
+ * stable-hash class (tree crowns 0–2, shelter/hearth/garden variants 0–1).
+ */
 export function catalogue(): { group: string; key: string }[] {
-  const out: { group: string; key: string }[] = [];
-  const regions: Region[] = ["forest", "desert", "cold", "coast"];
-  for (const r of regions) for (const v of [0, 1]) out.push({ group: `Shelter ${r}`, key: `shelter:${r}:${v}:complete` });
-  for (const r of regions) for (const s of ["foundation", "frame", "damaged", "ruin"]) out.push({ group: `States ${r}`, key: `shelter:${r}:0:${s}` });
-  for (const f of ["rack", "baskets"]) for (const n of [1, 4]) out.push({ group: "Storage", key: `store:forest:${f}:${n}:ok` });
-  out.push({ group: "Storage", key: "store:cold:rack:3:ok" }, { group: "Storage", key: "store:forest:baskets:2:ruined" });
-  for (const r of ["forest", "desert"] as Region[]) for (const v of [0, 1]) out.push({ group: "Work: hearth", key: `hearth:${r}:${v}` });
-  for (const v of [0, 1]) for (const d of ["wet", "dry"]) out.push({ group: "Work: garden", key: `garden:forest:${v}:${d}` });
-  for (const r of regions) for (const f of ["broadleaf", "conifer", "palm", "acacia", "bare"] as TreeForm[]) if (treeFormsFor(r).includes(f)) for (const k of [0, 1]) out.push({ group: `Trees ${r}`, key: `tree:${r}:${f}:${k}` });
-  for (const f of ["berries", "picked", "frost", "cactus", "reeds", "scrub"]) out.push({ group: "Shrubs", key: `shrub:forest:${f}:0` });
-  for (const r of regions) out.push({ group: "Rocks & logs", key: `rock:${r}:stone:0` });
-  out.push({ group: "Rocks & logs", key: "rock:forest:flint:1" }, { group: "Rocks & logs", key: "log:forest:0" }, { group: "Rocks & logs", key: "log:coast:1" });
-  return out;
+  const out = new Map<string, string>(), add = (group: string, key: string | undefined) => { if (key && !out.has(key)) out.set(key, group); };
+  const regions: Region[] = ["forest", "desert", "cold", "coast"], ids = Array.from({ length: 240 }, (_, i) => i);
+  const stages: Stage[] = ["complete", "foundation", "frame", "damaged", "ruin"];
+  for (const r of regions) for (const st of stages) for (const lit of [false, true]) for (const id of ids.slice(0, 32)) add(st === "complete" ? `Shelter ${r}` : `Shelter states ${r}`, shelterKey(r, id, st, lit));
+  for (const r of regions) for (const items of [{ wood: 2 }, { berries: 2 }] as Record<string, number>[]) for (const size of [1, 2, 3, 4]) for (const ruined of [false, true]) add(`Storage ${r}`, storeKey(r, items, size, ruined));
+  for (const r of regions) for (const id of ids.slice(0, 32)) add("Work: hearth", hearthKey(r, id));
+  for (const id of ids.slice(0, 32)) for (const dry of [false, true]) add("Work: garden", gardenKey(id, dry));
+  const kinds = ["tree", "bush", "cactus", "scrub", "lichen", "stone", "flint", "deadfall", "driftwood"];
+  const family: Record<string, string> = { tree: "Trees", shrub: "Shrubs", rock: "Rocks", log: "Logs" };
+  for (const r of regions) for (const kind of kinds) for (const units of [0, 1]) for (const id of ids) {
+    const key = nodeKey(r, kind, `n${id}`, units)?.key; if (key) add(`${family[key.split(":")[0]]} ${r}`, key);
+  }
+  const order = (g: string) => ["Shelter ", "Shelter states", "Storage", "Work", "Trees", "Shrubs", "Rocks", "Logs"].findIndex((p) => g.startsWith(p));
+  return [...out].map(([key, group]) => ({ group, key })).sort((x, y) => order(x.group) - order(y.group) || x.group.localeCompare(y.group) || x.key.localeCompare(y.key));
 }
-function treeFormsFor(r: Region): TreeForm[] { return r === "forest" ? ["broadleaf", "conifer"] : r === "cold" ? ["conifer", "bare"] : r === "desert" ? ["palm", "acacia"] : ["conifer", "broadleaf"]; }
+/** Paint a cell for review without keeping it in the runtime cache. */
+export function renderCell(key: string) {
+  const hit = cache.get(key); if (hit) return hit;
+  const c = cellFor(key); cache.delete(key); return c;
+}
 
 /** Non-interactive ground dressing derived from the real terrain tile and its
  * neighbours. Small, low-contrast, no outline: never confusable with a node. */

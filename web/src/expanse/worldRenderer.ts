@@ -1,5 +1,5 @@
-import { drawSprite, type Art } from "./art";
-import { drawCell, nodeKey, shelterKey, storeKey, hearthKey, gardenKey, regionOf, drawDressing, castShadow, stableHash, type Stage } from "./storybook";
+import { drawSprite, sprites, type Art } from "./art";
+import { drawCell, softEdgeSheet, nodeKey, shelterKey, fireBeside, storeKey, hearthKey, gardenKey, regionOf, drawDressing, castShadow, stableHash, type Stage } from "./storybook";
 import { residentPose, residentSprite, carried, constructionStage } from "./appearance";
 export { residentPose } from "./appearance";
 import { resourceGroups, type ResourceGroup, type ResourceHit } from './resources';
@@ -64,6 +64,15 @@ export class WorldRenderer {
     frames: 0,
     drawTimes: [] as number[],
   };
+  private edged?: Record<string, CanvasImageSource>;
+  /** Character sheet with the shared soft umber rim (see softEdgeSheet). */
+  private residentArt() {
+    if (!this.edged) {
+      const sheet = this.art.characters;
+      this.edged = sheet ? {...this.art, characters: softEdgeSheet(sheet, Object.values(sprites).filter(q=>q.sheet==='characters').map(q=>q.rect))} : this.art;
+    }
+    return this.edged;
+  }
   constructor(private art: Art) {
     this.ground = new GroundCache(art);
     this.paths = new WornPaths(art);
@@ -252,7 +261,9 @@ export class WorldRenderer {
       drawn++;
       // Shelter appearance: variant from the stable shelter id (shape AND
       // material), state from the authoritative stage/integrity only.
-      objects.push({depth:p.depth,draw:()=>drawCell(ctx,shelterKey(regionOf(biomeAt(f,x,y)),id,stage),p.x,p.y,s*4.6)});
+      // Chimney smoke only with a real burning fire on or beside the shelter.
+      const lit=stage==='complete'&&fireBeside(v.fires,v.fireState,x,y);
+      objects.push({depth:p.depth,draw:()=>drawCell(ctx,shelterKey(regionOf(biomeAt(f,x,y)),id,stage,lit),p.x,p.y,s*4.6)});
     };
     for (const [id,x,y,,integrity=100] of v.shelters) structure(x,y,integrity<=0?'ruin':integrity<40?'damaged':'complete',id);
     for (const ruin of v.ruins ?? []) structure(ruin.x,ruin.y,'ruin',ruin.id);
@@ -382,7 +393,7 @@ export class WorldRenderer {
           const farming=['plant','tend','harvest'].includes(pose);
           // One registered kneeling actor; the reusable gestures contain no
           // wheat, kettle, spare tools or extra resident from the art sheet.
-          drawSprite(ctx,this.art,sprite,p.x,p.y,farming?s*1.5:h);
+          drawSprite(ctx,this.residentArt(),sprite,p.x,p.y,farming?s*1.5:h);
           if(farming&&opts.motion){
             const pulse=Math.sin(now/220)*s*.035;
             ctx.strokeStyle='#e9c363';ctx.lineWidth=s*.07;ctx.beginPath();ctx.moveTo(p.x+s*.2,p.y-s*.25);ctx.lineTo(p.x+s*.38,p.y-s*.12+pulse);ctx.stroke();
