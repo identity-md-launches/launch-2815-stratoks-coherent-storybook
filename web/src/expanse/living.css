@@ -189,3 +189,15 @@
 .exp-stock-members li {padding:12px 0;border-bottom:1px solid var(--hud-line);}
 .exp-stock-members p {margin-block:6px 12px;}
 @media(max-width:700px){.exp-resource-control{right:16px;top:68px;}}
+
+/* Storybook art sheet (#art-sheet): review surface for the environment cells. */
+.exp-art-sheet { min-height: 100vh; overflow: auto; padding: 24px; background: #1f2a24; color: #f1ead6; }
+.exp-art-sheet h1 { font-size: 28px; margin: 0 0 8px; }
+.exp-art-sheet h2 { grid-column: 1 / -1; font-size: 18px; margin: 16px 0 0; color: #e8c36e; }
+.exp-art-sheet a { color: #e8c36e; }
+.exp-art-swatches { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; padding: 0; }
+.exp-art-swatches li { width: 22px; height: 22px; border-radius: 4px; border: 1px solid #0006; }
+.exp-art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin: 12px 0 24px; }
+.exp-art-grid figure { margin: 0; background: #7d9b57; border-radius: 8px; }
+.exp-art-grid canvas { width: 100%; height: auto; display: block; }
+.exp-art-grid figcaption { font-size: 12px; padding: 4px 8px; background: #1f2a24; color: #d9d2bd; word-break: break-all; }

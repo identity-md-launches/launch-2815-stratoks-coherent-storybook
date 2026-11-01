@@ -1,0 +1,48 @@
+✔ fixture is a representative schema-5 world with 300+ residents and accumulated ground stocks (763.252295ms)
+✔ loading the fixture with the updated engine preserves identity, learned weights, memories and inventory; save/load/restart is exact (19980.303615ms)
+✔ unattended run: bounded ground piles, all three chains complete, decision evidence bounded and state-derived (43256.127825ms)
+✔ tool mending consumes exactly one unit of its material and keeps the ledger exact; tools wear out with use (7.005654ms)
+✔ wood-only residents do not scatter fuel even when cold; material demand comes from perception (33.964602ms)
+✔ ignition-ready fuel consolidates onto a perceived pile with exact accounting (stone) (7.841062ms)
+✔ ignition-ready fuel consolidates onto a perceived pile with exact accounting (flint,stone) (8.350313ms)
+✔ flint without stone cannot bootstrap fuel; an on-tile pile can still consolidate wood (6.72501ms)
+✔ stockpile aggregation keeps exact quantities and member ids (1.809396ms)
+✔ client uses actual HTTP crypto verification and server logout; connecting alone never authenticates (1513.893166ms)
+✔ transient session-check errors retain credentials, deduplicate checks and recover without false verification (383.163611ms)
+✔ account switch mid-signature cannot authenticate old or new account; retry recovers (539.912063ms)
+✔ network changes and provider disconnect immediately clear/revoke an existing session (488.331768ms)
+✔ chain switch mid-signature and silent account changes both reject; no transaction RPC (405.543103ms)
+✔ late verification response after account switch is cancelled on server (434.283386ms)
+✔ declined signature, locked wallet and provider timeout leave buttons recoverable (507.627155ms)
+✔ signature reading timeout is independently bounded and cancelled without shortening backend requests (337.410371ms)
+✔ backend timeout/offline logout, unavailable capability and retry (514.334531ms)
+✔ exact challenge validation rejects altered server fields before prompting wallet (262.543018ms)
+✔ missing wallets, EIP-6963 discovery, multiple provider choice, fallback and cleanup (73.492656ms)
+✔ late nonce after disconnect is cancelled; connection timeout/rejection can be retried (644.396192ms)
+✔ initial wallet announcements during connect are accepted without creating authentication (363.894642ms)
+✔ isolated preview can connect a wallet but cannot request a challenge or fake authentication (36.291093ms)
+✔ silent account switch while verify is in flight rejects and revokes its returned session (544.30429ms)
+✔ capability world changes invalidate and malformed current-session replies become unverified (1075.767283ms)
+✔ late logout acknowledgement cannot overwrite a newer verified account state (431.518926ms)
+✔ expiry timer clears verification and revokes server credential without changing the world (60231.931242ms)
+✔ delivered static preview modules match the authoritative shared client bytes (8.482469ms)
+✔ recovery: transient config checks retain an existing credential without claiming verification (243.606773ms)
+✔ recovery: only explicit invalid-session replies expire a session; generic proxy errors do not (237.624078ms)
+✔ recovery: manual success cancels old backoff and refreshes are deduplicated (241.675168ms)
+✔ recovery: Retry-After is a lower bound, including dates and delays longer than a minute (225.086934ms)
+✔ recovery: a stale refresh cannot block or reset a newer session refresh (392.964728ms)
+✔ recovery: late nonce cannot overwrite the cancellation secret of a newer signing attempt (147.261713ms)
+✔ recovery: cancelling a delayed verify queues no malformed nonce-only revocations (543.331236ms)
+✔ recovery: logout requests share one in-flight revocation and require acknowledgement (264.142264ms)
+✔ recovery: automatic retries grow with bounded jitter, recover, and stop on logout (virtual clock) (51.489292ms)
+✔ recovery: structured scope and control characters are checked before any wallet signature (520.042798ms)
+✔ provider deadline expires at the boundary and a late result cannot reverse it (virtual clock) (6.271563ms)
+✔ network deadline aborts the fetch signal, unwinds counters and permits retry (virtual clock) (116.990409ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 72010.827937
